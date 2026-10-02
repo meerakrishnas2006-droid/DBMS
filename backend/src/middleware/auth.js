@@ -11,7 +11,12 @@ const protect = async (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return sendError(res, 500, 'JWT secret is not configured.');
+    }
+
+    const decoded = jwt.verify(token, secret);
     const result = await db.query(
       'SELECT user_id, username, role, status FROM user_account WHERE user_id = $1',
       [decoded.userId]

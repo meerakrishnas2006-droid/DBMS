@@ -3,9 +3,14 @@ const db = require('../config/db');
 const { sendSuccess, sendError } = require('../utils/response');
 
 const signToken = (user) => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not configured.');
+  }
+
   return jwt.sign(
     { userId: user.user_id, username: user.username, role: user.role },
-    process.env.JWT_SECRET || 'dev-secret',
+    secret,
     { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
   );
 };

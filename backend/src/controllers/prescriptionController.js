@@ -49,25 +49,64 @@ exports.createPrescription = async (req, res, next) => {
       return sendError(res, 400, 'Patient, doctor, and at least one medicine are required.');
     }
 
-    const prescriptionResult = await db.query(
-      `INSERT INTO prescription (patient_id, doctor_id, branch_id, diagnosis, notes)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [patientId, doctorId, branchId || 1, diagnosis || null, notes || null]
-    );
+    const client = await db.pool.connect();
 
-    const prescription = prescriptionResult.rows[0];
-    const detailValues = medicines.map((m) => [prescription.prescription_id, m.medicineId, m.dosage || '', m.frequency || '', Number(m.durationDays || 1), Number(m.quantity || 1), m.instructions || '']);
+    try {
+      await client.query('BEGIN');
 
-    await Promise.all(detailValues.map(([prescriptionId, medicineId, dosage, frequency, durationDays, quantity, instructions]) =>
-      db.query(
-        `INSERT INTO prescription_detail (prescription_id, medicine_id, dosage, frequency, duration_days, quantity, instructions)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [prescriptionId, medicineId, dosage, frequency, durationDays, quantity, instructions]
-      )
-    ));
+      const patient = await client.query('SELECT patient_id FROM patient WHERE patient_id = $1', [patientId]);
+      if (!patient.rows.length) {
+        throw new Error('PATIENT_NOT_FOUND');
+      }
 
-    return sendSuccess(res, 201, { prescription });
+      const doctor = await client.query('SELECT doctor_id, branch_id FROM doctor WHERE doctor_id = $1', [doctorId]);
+      if (!doctor.rows.length) {
+        throw new Error('DOCTOR_NOT_FOUND');
+      }
+
+      const prescriptionResult = await client.query(
+        `INSERT INTO prescription (patient_id, doctor_id, branch_id, diagnosis, notes)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING *`,
+        [patientId, doctorId, branchId || doctor.rows[0].branch_id || 1, diagnosis || null, notes || null]
+      );
+
+      const prescription = prescriptionResult.rows[0];
+      for (const med of medicines) {
+        if (!med.medicineId) {
+          throw new Error('MEDICINE_ID_REQUIRED');
+        }
+
+        const medCheck = await client.query('SELECT medicine_id, stock_quantity, status FROM medicine WHERE medicine_id = $1', [med.medicineId]);
+        if (!medCheck.rows.length) {
+          throw new Error('MEDICINE_NOT_FOUND');
+        }
+
+        const quantity = Number(med.quantity || 1);
+        if (quantity <= 0) {
+          throw new Error('INVALID_PRESCRIPTION_QUANTITY');
+        }
+
+        await client.query(
+          `INSERT INTO prescription_detail (prescription_id, medicine_id, dosage, frequency, duration_days, quantity, instructions)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [prescription.prescription_id, med.medicineId, med.dosage || '', med.frequency || '', Number(med.durationDays || 1), quantity, med.instructions || '']
+        );
+      }
+
+      await client.query('COMMIT');
+      return sendSuccess(res, 201, { prescription });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      if (error.message === 'PATIENT_NOT_FOUND') return sendError(res, 404, 'Patient not found.');
+      if (error.message === 'DOCTOR_NOT_FOUND') return sendError(res, 404, 'Doctor not found.');
+      if (error.message === 'MEDICINE_NOT_FOUND') return sendError(res, 404, 'Medicine not found.');
+      if (error.message === 'MEDICINE_ID_REQUIRED') return sendError(res, 400, 'Each medicine must include a valid medicine id.');
+      if (error.message === 'INVALID_PRESCRIPTION_QUANTITY') return sendError(res, 400, 'Prescription quantities must be greater than zero.');
+      next(error);
+    } finally {
+      client.release();
+    }
   } catch (error) {
     next(error);
   }

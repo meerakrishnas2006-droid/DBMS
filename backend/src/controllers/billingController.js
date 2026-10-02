@@ -61,18 +61,33 @@ exports.updateBill = async (req, res, next) => {
 
 exports.recordPayment = async (req, res, next) => {
   try {
+    const { paymentMode, amount } = req.body;
+    const current = await db.query('SELECT * FROM bill WHERE bill_id = $1', [req.params.id]);
+    if (!current.rows.length) return sendError(res, 404, 'Bill not found.');
+
+    const bill = current.rows[0];
+    const total = Number(bill.total_amount || 0);
+    const paid = Number(amount || total);
+
+    if (paid < 0 || paid > total) {
+      return sendError(res, 400, 'Payment amount must be between 0 and the bill total.');
+    }
+
+    const nextStatus = paid >= total ? 'paid' : 'partial';
     const result = await db.query(
       `UPDATE bill
-       SET status = 'paid',
-           payment_mode = COALESCE($1, payment_mode),
+       SET status = $1,
+           payment_mode = COALESCE($2, payment_mode),
            updated_at = NOW()
-       WHERE bill_id = $2
+       WHERE bill_id = $3
        RETURNING *`,
-      [req.body.paymentMode || 'cash', req.params.id]
+      [nextStatus, paymentMode || bill.payment_mode || 'cash', req.params.id]
     );
 
-    if (!result.rows.length) return sendError(res, 404, 'Bill not found.');
-    return sendSuccess(res, 200, { bill: result.rows[0], message: 'Payment recorded successfully.' });
+    return sendSuccess(res, 200, {
+      bill: result.rows[0],
+      message: nextStatus === 'paid' ? 'Payment recorded successfully.' : 'Partial payment recorded successfully.',
+    });
   } catch (error) {
     next(error);
   }

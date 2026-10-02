@@ -19,6 +19,7 @@ const roomRoutes = require('./routes/roomRoutes');
 const doctorShiftRoutes = require('./routes/doctorShiftRoutes');
 const labResultsRoutes = require('./routes/labResultsRoutes');
 const otRoutes = require('./routes/otRoutes');
+const catalogController = require('./controllers/catalogController');
 
 const app = express();
 
@@ -55,6 +56,20 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/doctor-shifts', doctorShiftRoutes);
 app.use('/api/lab-results', labResultsRoutes);
 app.use('/api/ot', otRoutes);
+app.get('/api/branches', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','DOCTOR','NURSE','BILLING'), catalogController.getBranches);
+app.post('/api/branches', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF'), catalogController.createBranch);
+app.get('/api/departments', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','NURSE','STAFF','BILLING'), catalogController.getDepartments);
+app.post('/api/departments', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF'), catalogController.createDepartment);
+app.get('/api/nurses', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','NURSE','DOCTOR','STAFF'), catalogController.getNurses);
+app.post('/api/nurses', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','NURSE'), catalogController.createNurse);
+app.get('/api/admissions', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','NURSE','STAFF','BILLING'), catalogController.getAdmissions);
+app.post('/api/admissions', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','STAFF'), catalogController.createAdmission);
+app.get('/api/equipment', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','NURSE','STAFF'), catalogController.getEquipment);
+app.get('/api/shift-logs', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','NURSE','DOCTOR'), catalogController.getShiftLogs);
+app.get('/api/pay-structures', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.getPayStructures);
+app.post('/api/pay-structures', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.createPayStructure);
+app.get('/api/salaries', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.getSalaries);
+app.post('/api/salaries', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.createSalary);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'API route not found.' });
