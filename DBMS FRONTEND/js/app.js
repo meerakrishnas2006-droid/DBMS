@@ -36,6 +36,221 @@ function toast(message, type = 'info') {
   setTimeout(() => t.remove(), 4000);
 }
 
+const API_BASE = 'http://localhost:5000/api';
+const appState = {
+  patients: [],
+  doctors: [],
+  appointments: [],
+  medicines: [],
+  staff: [],
+  dashboard: {},
+};
+
+function getAuthToken() {
+  return localStorage.getItem('hmsToken');
+}
+
+function requireAuth() {
+  if (!getAuthToken()) {
+    window.location.href = 'index.html';
+    return false;
+  }
+  return true;
+}
+
+async function apiRequest(path, options = {}) {
+  const token = getAuthToken();
+  const headers = { Accept: 'application/json', ...(options.headers || {}) };
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+  });
+
+  const contentType = response.headers.get('content-type') || '';
+  const payload = contentType.includes('application/json')
+    ? await response.json()
+    : await response.text();
+
+  if (!response.ok) {
+    const message = (payload && payload.message) || 'Request failed.';
+    throw new Error(message);
+  }
+
+  return payload;
+}
+
+function humanizeStatus(value) {
+  if (!value) return 'Pending';
+  const text = String(value).trim().replace(/_/g, ' ');
+  const words = text.split(/\s+/).map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+  return words.join(' ');
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toISOString().split('T')[0];
+}
+
+function normalizePatientRow(row) {
+  const name = [row.firstName, row.lastName].filter(Boolean).join(' ') || row.name || 'Unknown Patient';
+  const birthDate = row.dateOfBirth || row.date_of_birth;
+  const age = birthDate ? Math.max(0, new Date().getFullYear() - new Date(birthDate).getFullYear()) : '—';
+  return {
+    id: String(row.id ?? row.patient_id ?? '0'),
+    name,
+    age,
+    gender: row.gender || 'Other',
+    blood: row.bloodGroup || row.blood_group || '—',
+    contact: row.phone || row.contact || '—',
+    disease: row.disease || (row.status === 'critical' ? 'Critical Care' : 'General Care'),
+    status: humanizeStatus(row.status || 'active'),
+    admitted: formatDate(row.createdAt || row.created_at),
+    doctor: row.doctor || 'Unassigned',
+  };
+}
+
+function normalizeDoctorRow(row) {
+  return {
+    id: String(row.id ?? row.doctor_id ?? '0'),
+    name: row.name || row.doctor_name || 'Unknown Doctor',
+    dept: row.departmentName || row.department_name || 'General',
+    status: humanizeStatus(row.status || 'available'),
+    exp: row.experience ?? row.exp ?? 8,
+    patients: row.patients ?? row.patientCount ?? 0,
+    rating: row.rating ?? 4.8,
+    schedule: row.schedule || 'Mon-Fri 9AM-5PM',
+    contact: row.phone || '—',
+    email: row.email || '—',
+    color: avatarColor(row.name || row.doctor_name || 'Dr. Unknown'),
+  };
+}
+
+function normalizeAppointmentRow(row) {
+  return {
+    id: String(row.id ?? row.appointment_id ?? '0'),
+    patient: row.patientName || row.patient_name || 'Unknown Patient',
+    doctor: row.doctorName || row.doctor_name || 'Unassigned',
+    dept: row.departmentName || row.department_name || 'General',
+    date: formatDate(row.appointmentDate || row.appointment_date),
+    time: row.startTime || row.start_time || '—',
+    status: humanizeStatus(row.status || 'pending'),
+    type: humanizeStatus(row.appointmentType || row.appointment_type || 'consultation'),
+  };
+}
+
+function normalizeStaffRow(row) {
+  return {
+    id: String(row.staff_id ?? row.id ?? '0'),
+    name: row.staff_name || row.name || 'Unknown Staff',
+    dept: row.department_name || row.departmentName || 'General',
+    position: row.role || row.position || 'Staff',
+    contact: row.phone || '—',
+    status: humanizeStatus(row.status || 'active'),
+    joined: formatDate(row.hire_date || row.joined || row.created_at),
+  };
+}
+
+function normalizeMedicineRow(row) {
+  return {
+    id: String(row.medicine_id ?? row.id ?? '0'),
+    name: row.medicine_name || row.name || 'Unknown Medicine',
+    category: row.category || 'General',
+    stock: Number(row.stock_quantity ?? row.stock ?? 0),
+    expiry: formatDate(row.expiry_date || row.expiry),
+    supplier: row.supplier || '—',
+    price: Number(row.unit_price ?? row.price ?? 0),
+    status: humanizeStatus(row.status || 'in_stock'),
+  };
+}
+
+function animateCountUps() {
+  document.querySelectorAll('.count-up').forEach(el => {
+    const target = Number(el.dataset.target || 0);
+    let current = 0;
+    const step = Math.max(1, Math.ceil(target / 40));
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current.toLocaleString();
+      if (target >= 1000 && current >= target) {
+        el.textContent = target.toLocaleString();
+      }
+      if (current >= target) clearInterval(timer);
+    }, 28);
+  });
+}
+
+function updateSummaryCards(stats = {}) {
+  const countUps = [...document.querySelectorAll('.stat-card .count-up')];
+  const values = [
+    Number(stats.totalPatients ?? 0),
+    Number(stats.totalDoctors ?? 0),
+    Number(stats.upcomingAppointments ?? 0),
+    Number(stats.revenue ?? 0),
+  ];
+
+  countUps.forEach((el, index) => {
+    const value = values[index] ?? 0;
+    el.dataset.target = value;
+    el.textContent = '0';
+  });
+
+  animateCountUps();
+}
+
+async function hydrateDashboardCharts() {
+  const fallback = HMS.chartData || {
+    appointmentsWeekly: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], confirmed:[8,12,10,15,13,9,11], pending:[3,4,2,5,4,3,2], cancelled:[1,2,1,2,1,1,2] },
+    patientMonthly: { labels:['Jan','Feb','Mar','Apr','May','Jun'], inpatient:[110,120,130,125,140,150], outpatient:[180,200,210,220,230,250] },
+    deptDistribution: { labels:['Cardiology','Neurology','Orthopedics','General','Pediatrics'], data:[35,25,20,15,10], colors:['#2563EB','#0D9488','#8B5CF6','#F59E0B','#EF4444'] },
+    revenueMonthly: { labels:['Jan','Feb','Mar','Apr','May','Jun'], revenue:[3200,4100,3900,4700,5100,5600], expenses:[2000,2200,2400,2800,3000,3200] }
+  };
+
+  try {
+    const [statsResp, revenueResp, deptResp] = await Promise.all([
+      apiRequest('/dashboard/stats').catch(() => ({ stats: {} })),
+      apiRequest('/dashboard/revenue').catch(() => ({ data: [] })),
+      apiRequest('/dashboard/departments').catch(() => ({ departments: [] })),
+    ]);
+
+    const stats = statsResp.stats || {};
+    updateSummaryCards(stats);
+
+    const revenueData = Array.isArray(revenueResp.data) ? revenueResp.data : [];
+    const deptData = Array.isArray(deptResp.departments) ? deptResp.departments : [];
+
+    if (revenueData.length) {
+      HMS.chartData = {
+        ...fallback,
+        revenueMonthly: {
+          labels: revenueData.map(item => item.month_name || item.month || 'Month'),
+          revenue: revenueData.map(item => Number(item.revenue || 0)),
+          expenses: revenueData.map(item => Number(item.expenses || 0)),
+        },
+      };
+    }
+
+    if (deptData.length) {
+      HMS.chartData = {
+        ...HMS.chartData,
+        deptDistribution: {
+          labels: deptData.map(item => item.department_name || 'Department'),
+          data: deptData.map(item => Number(item.load_pct || 0)),
+          colors: ['#2563EB','#0D9488','#8B5CF6','#F59E0B','#EF4444','#10B981'],
+        },
+      };
+    }
+  } catch (error) {
+    updateSummaryCards({});
+  }
+}
+
 /* ── Modal helpers ────────────────────────────────────────── */
 function openModal(id) {
   const m = $(`#${id}`);
@@ -209,22 +424,26 @@ function initPage(page) {
 /* ══════════════════════════════════════════════════════════
    DASHBOARD
 ════════════════════════════════════════════════════════════ */
-function initDashboard() {
+async function initDashboard() {
   renderActivities();
+  await hydrateDashboardCharts();
 
-  const d = HMS.chartData;
+  const d = HMS.chartData || {
+    appointmentsWeekly: { labels: [], confirmed: [], pending: [], cancelled: [] },
+    patientMonthly: { labels: [], inpatient: [], outpatient: [] },
+    deptDistribution: { labels: [], data: [], colors: [] },
+  };
 
-  // Appointment bar chart
   const apptCtx = $('#appt-chart');
   if (apptCtx) {
     new Chart(apptCtx, {
       type: 'bar',
       data: {
-        labels: d.appointmentsWeekly.labels,
+        labels: d.appointmentsWeekly?.labels || [],
         datasets: [
-          { label:'Confirmed', data:d.appointmentsWeekly.confirmed, backgroundColor:'#2563EB', borderRadius:5, barPercentage:.6 },
-          { label:'Pending',   data:d.appointmentsWeekly.pending,   backgroundColor:'#F59E0B', borderRadius:5, barPercentage:.6 },
-          { label:'Cancelled', data:d.appointmentsWeekly.cancelled, backgroundColor:'#EF4444', borderRadius:5, barPercentage:.6 },
+          { label:'Confirmed', data:d.appointmentsWeekly?.confirmed || [], backgroundColor:'#2563EB', borderRadius:5, barPercentage:.6 },
+          { label:'Pending', data:d.appointmentsWeekly?.pending || [], backgroundColor:'#F59E0B', borderRadius:5, barPercentage:.6 },
+          { label:'Cancelled', data:d.appointmentsWeekly?.cancelled || [], backgroundColor:'#EF4444', borderRadius:5, barPercentage:.6 },
         ],
       },
       options: { responsive:true, maintainAspectRatio:false,
@@ -234,16 +453,15 @@ function initDashboard() {
     });
   }
 
-  // Patient line chart
   const patCtx = $('#patient-chart');
   if (patCtx) {
     new Chart(patCtx, {
       type: 'line',
       data: {
-        labels: d.patientMonthly.labels,
+        labels: d.patientMonthly?.labels || [],
         datasets: [
-          { label:'Inpatient',  data:d.patientMonthly.inpatient,  borderColor:'#2563EB', backgroundColor:'rgba(37,99,235,.08)', fill:true, tension:.4, pointRadius:4 },
-          { label:'Outpatient', data:d.patientMonthly.outpatient, borderColor:'#0D9488', backgroundColor:'rgba(13,148,136,.08)', fill:true, tension:.4, pointRadius:4 },
+          { label:'Inpatient', data:d.patientMonthly?.inpatient || [], borderColor:'#2563EB', backgroundColor:'rgba(37,99,235,.08)', fill:true, tension:.4, pointRadius:4 },
+          { label:'Outpatient', data:d.patientMonthly?.outpatient || [], borderColor:'#0D9488', backgroundColor:'rgba(13,148,136,.08)', fill:true, tension:.4, pointRadius:4 },
         ],
       },
       options: { responsive:true, maintainAspectRatio:false,
@@ -253,19 +471,41 @@ function initDashboard() {
     });
   }
 
-  // Department donut
   const deptCtx = $('#dept-chart');
   if (deptCtx) {
     new Chart(deptCtx, {
       type: 'doughnut',
       data: {
-        labels: d.deptDistribution.labels,
-        datasets:[{ data:d.deptDistribution.data, backgroundColor:d.deptDistribution.colors, borderWidth:0, hoverOffset:6 }],
+        labels: d.deptDistribution?.labels || [],
+        datasets:[{ data:d.deptDistribution?.data || [], backgroundColor:d.deptDistribution?.colors || ['#2563EB','#0D9488','#8B5CF6','#F59E0B','#EF4444'], borderWidth:0, hoverOffset:6 }],
       },
       options: { responsive:true, maintainAspectRatio:false, cutout:'70%',
         plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{family:'Inter',size:11}, padding:12 } } },
       },
     });
+  }
+
+  const scheduleTbody = $('#dashboard-schedule-body');
+  if (scheduleTbody) {
+    try {
+      const resp = await apiRequest('/appointments');
+      const data = Array.isArray(resp.appointments) ? resp.appointments : [];
+      const rows = data.slice(0, 5).map(item => {
+        const patient = item.patientName || 'Unknown Patient';
+        const doctor = item.doctorName || 'Unassigned';
+        const status = humanizeStatus(item.status || 'pending');
+        const initials = patient.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+        const color = avatarColor(patient);
+        return `
+          <tr>
+            <td><div class="flex items-center gap-2"><div class="avatar avatar-sm" style="background:${color}">${initials}</div>${patient}</div></td>
+            <td>${doctor}</td><td>${(item.startTime || '—')}</td><td>${statusBadge(status)}</td>
+          </tr>`;
+      }).join('');
+      scheduleTbody.innerHTML = rows || `<tr><td colspan="4">No appointments available.</td></tr>`;
+    } catch (error) {
+      scheduleTbody.innerHTML = `<tr><td colspan="4">Unable to load live schedule.</td></tr>`;
+    }
   }
 }
 
@@ -274,7 +514,12 @@ function renderActivities() {
   if (!list) return;
   const bg   = { blue:'var(--primary-light)', success:'#D1FAE5', warning:'#FEF3C7', purple:'#EDE9FE', danger:'#FEE2E2', teal:'var(--teal-light)' };
   const fg   = { blue:'var(--primary)', success:'var(--success)', warning:'var(--warning)', purple:'var(--purple)', danger:'var(--danger)', teal:'var(--teal)' };
-  list.innerHTML = HMS.activities.map(a => `
+  const data = Array.isArray(HMS.activities) && HMS.activities.length ? HMS.activities : [
+    { color:'blue', icon:'fa-user-injured', title:'Patient intake updated', desc:'5 new patient records synced from the database.', time:'2 min ago' },
+    { color:'success', icon:'fa-calendar-check', title:'Appointments confirmed', desc:'2 appointments were verified in the last hour.', time:'18 min ago' },
+    { color:'warning', icon:'fa-pills', title:'Stock review', desc:'Low-stock medicines require pharmacist attention.', time:'1 hour ago' },
+  ];
+  list.innerHTML = data.map(a => `
     <div class="activity-item">
       <div class="activity-dot" style="background:${bg[a.color]};color:${fg[a.color]}"><i class="fas ${a.icon}"></i></div>
       <div class="activity-content">
@@ -288,11 +533,16 @@ function renderActivities() {
 /* ══════════════════════════════════════════════════════════
    PATIENTS
 ════════════════════════════════════════════════════════════ */
-function initPatients() {
+async function initPatients() {
+  try {
+    const response = await apiRequest('/patients');
+    appState.patients = Array.isArray(response.patients) ? response.patients.map(normalizePatientRow) : [];
+  } catch (error) {
+    appState.patients = (HMS.patients || []).map(normalizePatientRow);
+  }
   renderPatients('');
   const search = $('#patient-search');
   if (search) search.addEventListener('input', e => renderPatients(e.target.value));
-  // form submit
   const submit = $('#patient-form-submit');
   if (submit) submit.addEventListener('click', submitPatientForm);
 }
@@ -300,8 +550,9 @@ function initPatients() {
 function renderPatients(filter = '') {
   const tbody = $('#patients-tbody');
   if (!tbody) return;
-  const filtered = HMS.patients.filter(p =>
-    `${p.name} ${p.id} ${p.disease}`.toLowerCase().includes(filter.toLowerCase())
+  const source = appState.patients.length ? appState.patients : HMS.patients;
+  const filtered = (source || []).filter(p =>
+    `${p.name || ''} ${p.id || ''} ${p.disease || ''}`.toLowerCase().includes(filter.toLowerCase())
   );
   if (!filtered.length) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-user-injured"></i><h3>No patients found</h3><p>Try a different search term.</p></div></td></tr>`;
@@ -387,7 +638,13 @@ function submitPatientForm() {
 /* ══════════════════════════════════════════════════════════
    DOCTORS
 ════════════════════════════════════════════════════════════ */
-function initDoctors() {
+async function initDoctors() {
+  try {
+    const response = await apiRequest('/doctors');
+    appState.doctors = Array.isArray(response.doctors) ? response.doctors.map(normalizeDoctorRow) : [];
+  } catch (error) {
+    appState.doctors = (HMS.doctors || []).map(normalizeDoctorRow);
+  }
   renderDoctors('');
   const search = $('#doctor-search');
   if (search) search.addEventListener('input', e => renderDoctors(e.target.value));
@@ -397,7 +654,8 @@ function initDoctors() {
 function renderDoctors(filter = '') {
   const grid = $('#doctors-grid');
   if (!grid) return;
-  const filtered = HMS.doctors.filter(d =>
+  const source = appState.doctors.length ? appState.doctors : HMS.doctors || [];
+  const filtered = source.filter(d =>
     `${d.name} ${d.dept}`.toLowerCase().includes(filter.toLowerCase())
   );
   grid.innerHTML = filtered.map(d => {
@@ -462,8 +720,14 @@ function submitDoctorForm() {
 /* ══════════════════════════════════════════════════════════
    APPOINTMENTS
 ════════════════════════════════════════════════════════════ */
-function initAppointments() {
+async function initAppointments() {
   renderMiniCalendar();
+  try {
+    const response = await apiRequest('/appointments');
+    appState.appointments = Array.isArray(response.appointments) ? response.appointments.map(normalizeAppointmentRow) : [];
+  } catch (error) {
+    appState.appointments = (HMS.appointments || []).map(normalizeAppointmentRow);
+  }
   renderAppointments('');
   const search = $('#appt-search');
   if (search) search.addEventListener('input', e => renderAppointments(e.target.value));
@@ -478,7 +742,8 @@ function initAppointments() {
 function renderAppointments(filter = '') {
   const tbody = $('#appt-tbody');
   if (!tbody) return;
-  const filtered = HMS.appointments.filter(a =>
+  const source = appState.appointments.length ? appState.appointments : HMS.appointments || [];
+  const filtered = source.filter(a =>
     `${a.patient} ${a.doctor} ${a.id}`.toLowerCase().includes(filter.toLowerCase())
   );
   tbody.innerHTML = filtered.map(a => `
@@ -620,7 +885,13 @@ function submitRxForm() {
 /* ══════════════════════════════════════════════════════════
    PHARMACY
 ════════════════════════════════════════════════════════════ */
-function initPharmacy() {
+async function initPharmacy() {
+  try {
+    const response = await apiRequest('/medicines');
+    appState.medicines = Array.isArray(response.medicines) ? response.medicines.map(normalizeMedicineRow) : [];
+  } catch (error) {
+    appState.medicines = (HMS.medicines || []).map(normalizeMedicineRow);
+  }
   renderPharmacy('');
   const search = $('#pharmacy-search');
   if (search) search.addEventListener('input', e => renderPharmacy(e.target.value));
@@ -628,7 +899,8 @@ function initPharmacy() {
 function renderPharmacy(filter = '') {
   const tbody = $('#pharmacy-tbody');
   if (!tbody) return;
-  const filtered = HMS.medicines.filter(m =>
+  const source = appState.medicines.length ? appState.medicines : HMS.medicines || [];
+  const filtered = source.filter(m =>
     `${m.name} ${m.category}`.toLowerCase().includes(filter.toLowerCase())
   );
   tbody.innerHTML = filtered.map(m => {
@@ -644,7 +916,7 @@ function renderPharmacy(filter = '') {
           <span class="fw-600">${m.stock}</span>
         </div>
       </td>
-      <td>${m.expiry}</td><td>${m.supplier}</td><td>$${m.price.toFixed(2)}</td>
+      <td>${m.expiry}</td><td>${m.supplier}</td><td>$${Number(m.price || 0).toFixed(2)}</td>
       <td>${statusBadge(m.status)}</td>
       <td>
         <div class="flex gap-1">
@@ -715,7 +987,13 @@ function renderBilling() {
 /* ══════════════════════════════════════════════════════════
    STAFF
 ════════════════════════════════════════════════════════════ */
-function initStaff() {
+async function initStaff() {
+  try {
+    const response = await apiRequest('/staff');
+    appState.staff = Array.isArray(response.staff) ? response.staff.map(normalizeStaffRow) : [];
+  } catch (error) {
+    appState.staff = (HMS.staff || []).map(normalizeStaffRow);
+  }
   renderStaff('');
   const search = $('#staff-search');
   if (search) search.addEventListener('input', e => renderStaff(e.target.value));
@@ -723,7 +1001,8 @@ function initStaff() {
 function renderStaff(filter = '') {
   const tbody = $('#staff-tbody');
   if (!tbody) return;
-  const filtered = HMS.staff.filter(s =>
+  const source = appState.staff.length ? appState.staff : HMS.staff || [];
+  const filtered = source.filter(s =>
     `${s.name} ${s.dept} ${s.position}`.toLowerCase().includes(filter.toLowerCase())
   );
   tbody.innerHTML = filtered.map(s => `
@@ -891,6 +1170,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('header-search')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') toast(`Searching for "${e.target.value}"…`, 'info');
   });
+
+  if (!requireAuth()) return;
 
   // Render notifications in header panel
   renderNotifications();

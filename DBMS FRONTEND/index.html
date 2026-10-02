@@ -384,16 +384,16 @@
 
       <form id="login-form" novalidate>
 
-        <!-- Email -->
+        <!-- Username -->
         <div class="form-float">
-          <i class="fas fa-envelope fi"></i>
+          <i class="fas fa-user fi"></i>
           <input
-            type="email" id="email" placeholder=" "
-            value="admin@medcare.com" autocomplete="email"
-            aria-label="Email address"
+            type="text" id="email" placeholder=" "
+            value="admin" autocomplete="username"
+            aria-label="Username or email"
           />
-          <label for="email">Email address</label>
-          <div class="field-error" id="email-error"><i class="fas fa-exclamation-circle"></i> Please enter a valid email.</div>
+          <label for="email">Username or email</label>
+          <div class="field-error" id="email-error"><i class="fas fa-exclamation-circle"></i> Please enter a valid username.</div>
         </div>
 
         <!-- Password -->
@@ -428,7 +428,7 @@
       <!-- Demo credentials -->
       <div class="demo-box">
         <strong><i class="fas fa-circle-info"></i> Demo Credentials</strong>
-        Email: <code>admin@medcare.com</code> &nbsp;|&nbsp; Password: <code>admin123</code>
+        Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>admin123</code>
       </div>
 
       <!-- Trust badges -->
@@ -467,7 +467,7 @@
   });
 
   // Form submit
-  document.getElementById('login-form').addEventListener('submit', function(e) {
+  document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const email    = document.getElementById('email');
     const password = document.getElementById('password');
@@ -478,7 +478,10 @@
     email.classList.remove('error'); emailErr.style.display = 'none';
     password.classList.remove('error'); passErr.style.display = 'none';
 
-    if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    const usernameValue = email.value.trim();
+    const username = usernameValue.includes('@') ? usernameValue.split('@')[0] : usernameValue;
+
+    if (!username) {
       email.classList.add('error'); emailErr.style.display = 'block'; valid = false;
     }
     if (!password.value || password.value.length < 6) {
@@ -491,7 +494,27 @@
     btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-color:rgba(255,255,255,.3);border-top-color:#fff"></div> Signing in…';
     document.getElementById('login-loading').classList.add('active');
 
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password: password.value }),
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Login failed.');
+      }
+
+      localStorage.setItem('hmsToken', result.token);
+      localStorage.setItem('hmsUser', JSON.stringify(result.user || {}));
+      window.location.href = 'dashboard.html';
+    } catch (error) {
+      showToast(error.message || 'Unable to sign in.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      document.getElementById('login-loading').classList.remove('active');
+    }
   });
 
   // Clear errors on input
