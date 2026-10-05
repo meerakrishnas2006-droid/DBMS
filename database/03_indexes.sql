@@ -1,0 +1,16 @@
+CREATE INDEX IF NOT EXISTS idx_branch_status ON branch(status);
+CREATE INDEX IF NOT EXISTS idx_department_branch ON department(branch_id);
+CREATE INDEX IF NOT EXISTS idx_doctor_branch_department ON doctor(branch_id, department_id);
+CREATE INDEX IF NOT EXISTS idx_doctor_shift_doctor_date ON doctor_shift(doctor_id, shift_date);
+CREATE INDEX IF NOT EXISTS idx_appointment_doctor_date ON appointment(doctor_id, appointment_date, status);
+CREATE INDEX IF NOT EXISTS idx_appointment_patient ON appointment(patient_id);
+CREATE INDEX IF NOT EXISTS idx_patient_status ON patient(status);
+CREATE INDEX IF NOT EXISTS idx_room_branch_status ON room(branch_id, status);
+CREATE INDEX IF NOT EXISTS idx_admission_patient ON admission(patient_id);
+CREATE INDEX IF NOT EXISTS idx_admission_room ON admission(room_id, status);
+CREATE INDEX IF NOT EXISTS idx_prescription_patient_doctor ON prescription(patient_id, doctor_id);
+CREATE INDEX IF NOT EXISTS idx_pharmacy_inventory_medicine ON pharmacy_inventory(medicine_id);
+CREATE INDEX IF NOT EXISTS idx_ot_schedule_theatre_date ON ot_schedule(theatre_id, scheduled_date);
+CREATE INDEX IF NOT EXISTS idx_bill_patient_date ON bill(patient_id, bill_date);
+CREATE INDEX IF NOT EXISTS idx_salary_staff_period ON salary(staff_id, pay_period_start, pay_period_end);
+CREATE INDEX IF NOT EXISTS idx_shift_log_staff_date ON shift_log(staff_id, shift_date);

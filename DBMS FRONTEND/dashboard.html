@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediCare HMS – Dashboard</title>
+  <meta name="description" content="Hospital Management System – Unified platform for patients, doctors, and operations." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── Toast Container ──────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- ── Mobile Sidebar Overlay ──────────────────────── -->
+<div class="sidebar-overlay"></div>
+
+<!-- ════════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════ -->
+<aside class="sidebar" role="navigation" aria-label="Main navigation">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon"><i class="fas fa-heartbeat"></i></div>
+    <div class="sidebar-logo-text">
+      <span class="name">MediCare</span>
+      <span class="sub">Hospital Management</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <div class="nav-item active" data-page="dashboard" title="Dashboard">
+      <i class="fas fa-th-large"></i><span>Dashboard</span>
+    </div>
+
+    <div class="nav-section-label">Clinical</div>
+    <div class="nav-item" data-page="patients" title="Patients">
+      <i class="fas fa-user-injured"></i><span>Patients</span>
+    </div>
+    <div class="nav-item" data-page="doctors" title="Doctors">
+      <i class="fas fa-user-md"></i><span>Doctors</span>
+    </div>
+    <div class="nav-item" data-page="appointments" title="Appointments">
+      <i class="fas fa-calendar-alt"></i><span>Appointments</span>
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" data-page="prescriptions" title="Prescriptions">
+      <i class="fas fa-prescription-bottle-alt"></i><span>Prescriptions</span>
+    </div>
+
+    <div class="nav-section-label">Operations</div>
+    <div class="nav-item" data-page="pharmacy" title="Pharmacy">
+      <i class="fas fa-pills"></i><span>Pharmacy</span>
+      <span class="nav-badge">2</span>
+    </div>
+    <div class="nav-item" data-page="billing" title="Billing">
+      <i class="fas fa-file-invoice-dollar"></i><span>Billing</span>
+    </div>
+    <div class="nav-item" data-page="staff" title="Staff">
+      <i class="fas fa-users-cog"></i><span>Staff</span>
+    </div>
+    <div class="nav-item" data-page="admissions" title="Admissions">
+      <i class="fas fa-bed"></i><span>Admissions</span>
+    </div>
+    <div class="nav-item" data-page="reports" title="Reports">
+      <i class="fas fa-chart-bar"></i><span>Reports</span>
+    </div>
+
+    <div class="nav-section-label">Hospital Admin</div>
+    <div class="nav-item" data-page="branches" title="Branches">
+      <i class="fas fa-hospital"></i><span>Branches</span>
+    </div>
+    <div class="nav-item" data-page="departments" title="Departments">
+      <i class="fas fa-hospital-alt"></i><span>Departments</span>
+    </div>
+    <div class="nav-item" data-page="nurses" title="Nurses">
+      <i class="fas fa-user-nurse"></i><span>Nurses</span>
+    </div>
+    <div class="nav-item" data-page="equipment" title="Equipment">
+      <i class="fas fa-tools"></i><span>Equipment</span>
+    </div>
+    <div class="nav-item" data-page="rooms" title="Rooms &amp; Beds">
+      <i class="fas fa-door-open"></i><span>Rooms &amp; Beds</span>
+    </div>
+    <div class="nav-item" data-page="ot" title="Operation Theatre">
+      <i class="fas fa-procedures"></i><span>OT / Surgery</span>
+    </div>
+    <div class="nav-item" data-page="labresults" title="Lab Results">
+      <i class="fas fa-flask"></i><span>Lab Results</span>
+    </div>
+    <div class="nav-item" data-page="doctorshifts" title="Doctor Shifts">
+      <i class="fas fa-calendar-alt"></i><span>Doctor Shifts</span>
+    </div>
+    <div class="nav-item" data-page="pharmacyinventory" title="Pharmacy Inventory">
+      <i class="fas fa-store"></i><span>Pharm. Inventory</span>
+    </div>
+
+    <div class="nav-section-label">HR &amp; Payroll</div>
+    <div class="nav-item" data-page="shiftlogs" title="Shift Logs">
+      <i class="fas fa-clock"></i><span>Shift Logs</span>
+    </div>
+    <div class="nav-item" data-page="paystructures" title="Pay Structures">
+      <i class="fas fa-money-bill-wave"></i><span>Pay Structures</span>
+    </div>
+    <div class="nav-item" data-page="salaries" title="Salaries">
+      <i class="fas fa-money-check-alt"></i><span>Salaries</span>
+    </div>
+
+    <div class="nav-section-label">Account</div>
+    <div class="nav-item" data-page="settings" title="Settings">
+      <i class="fas fa-cog"></i><span>Settings</span>
+    </div>
+    <div class="nav-item" id="logout-btn" title="Logout">
+      <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar" style="background:#2563EB;width:36px;height:36px;font-size:.8rem">AD</div>
+      <div class="sidebar-user-info">
+        <div class="name">Dr. Admin User</div>
+        <div class="role">Super Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════ -->
+<div class="main-content">
+
+  <!-- ── Top Header ────────────────────────────────── -->
+  <header class="top-header">
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="header-search">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="search" id="header-search" placeholder="Search patients, doctors, appointments…" />
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Notifications Dropdown -->
+      <div class="dropdown">
+        <button class="header-icon-btn" onclick="toggleDropdown('notif-dropdown')" aria-label="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="notif-dot"></span>
+        </button>
+        <div class="dropdown-menu" id="notif-dropdown" style="min-width:340px;max-height:460px;overflow-y:auto">
+          <div style="padding:1rem 1.1rem;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between">
+            <span class="fw-700">Notifications
+              <span id="notif-count" class="badge badge-danger" style="margin-left:.5rem">3</span>
+            </span>
+            <button id="mark-all-read" class="btn btn-outline btn-sm" style="font-size:.75rem">Mark all read</button>
+          </div>
+          <div id="notif-panel" style="padding:0 1.1rem"></div>
+          <div style="padding:.75rem 1.1rem;border-top:1px solid var(--gray-100);text-align:center">
+            <a href="#" class="text-primary text-sm fw-500">View all notifications</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <button class="header-icon-btn" aria-label="Messages" onclick="toast('Messages coming soon!','info')">
+        <i class="fas fa-envelope"></i>
+      </button>
+
+      <!-- User Menu -->
+      <div class="dropdown">
+        <div class="header-user" onclick="toggleDropdown('user-dropdown')">
+          <div class="avatar" style="background:#2563EB;width:36px;height:36px;font-size:.8rem">AD</div>
+          <div class="header-user-info">
+            <div class="name">Dr. Admin User</div>
+            <div class="role">Super Administrator</div>
+          </div>
+          <i class="fas fa-chevron-down" style="font-size:.7rem;color:var(--gray-400);margin-left:.25rem"></i>
+        </div>
+        <div class="dropdown-menu" id="user-dropdown">
+          <div class="dropdown-item" onclick="navigate('settings')"><i class="fas fa-user-circle"></i> My Profile</div>
+          <div class="dropdown-item" onclick="navigate('settings')"><i class="fas fa-cog"></i> Settings</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" onclick="document.getElementById('logout-btn').click()" style="color:var(--danger)">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Page Viewport ─────────────────────────────── -->
+  <main class="page-content" id="page-content">
+    <!-- Page fragments are loaded here dynamically by app.js -->
+    <div id="page-loader" style="display:flex;align-items:center;justify-content:center;min-height:50vh">
+      <div class="spinner" style="width:48px;height:48px;border-width:4px"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     MODALS  (always present in DOM, content injected)
+════════════════════════════════════════════════════ -->
+
+<!-- View Patient -->
+<div class="modal-overlay" id="modal-view-patient">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Patient Details</span>
+      <div class="modal-close" onclick="closeModal('modal-view-patient')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body" id="view-patient-content"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-view-patient')">Close</button>
+      <button class="btn btn-primary" onclick="navigate('prescriptions');closeModal('modal-view-patient')">
+        <i class="fas fa-prescription-bottle-alt"></i> View Prescriptions
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Patient Form -->
+<div class="modal-overlay" id="modal-patient-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="patient-form-title">Add New Patient</span>
+      <div class="modal-close" onclick="closeModal('modal-patient-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>First Name *</label><input class="form-control" id="pf-firstname" placeholder="First name" /></div>
+        <div class="form-group"><label>Last Name</label><input class="form-control" id="pf-lastname" placeholder="Last name" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Gender</label>
+          <select class="form-control" id="pf-gender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select>
+        </div>
+        <div class="form-group"><label>Blood Group</label>
+          <select class="form-control" id="pf-blood"><option value="">Select...</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Phone *</label><input class="form-control" id="pf-phone" placeholder="+91 9876543210" /></div>
+        <div class="form-group"><label>Date of Birth</label><input type="date" class="form-control" id="pf-dob" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Email</label><input type="email" class="form-control" id="pf-email" placeholder="patient@email.com" /></div>
+        <div class="form-group"><label>Status</label>
+          <select class="form-control" id="pf-status"><option value="active">Active</option><option value="recovered">Recovered</option><option value="critical">Critical</option><option value="inactive">Inactive</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Address</label><textarea class="form-control" id="pf-address" rows="2" placeholder="Patient address (optional)"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-patient-form')">Cancel</button>
+      <button class="btn btn-primary" id="patient-form-submit"><i class="fas fa-save"></i> Save Patient</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Doctor -->
+<div class="modal-overlay" id="modal-view-doctor">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Doctor Profile</span>
+      <div class="modal-close" onclick="closeModal('modal-view-doctor')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body" id="view-doctor-content"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-view-doctor')">Close</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-view-doctor');toast('Viewing schedule…','info')">
+        <i class="fas fa-calendar-alt"></i> View Schedule
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Doctor Form -->
+<div class="modal-overlay" id="modal-doctor-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="doctor-form-title">Add New Doctor</span>
+      <div class="modal-close" onclick="closeModal('modal-doctor-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Full Name *</label><input class="form-control" id="df-name" placeholder="Dr. First Last" /></div>
+        <div class="form-group"><label>Specialization</label><input class="form-control" id="df-specialization" placeholder="e.g. Cardiology" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Department *</label>
+          <select class="form-control" id="df-dept-id"><option value="">Loading departments…</option></select>
+        </div>
+        <div class="form-group"><label>Branch *</label>
+          <select class="form-control" id="df-branch-id"><option value="">Loading branches…</option></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Phone</label><input class="form-control" id="df-contact" placeholder="+91 9876543210" /></div>
+        <div class="form-group"><label>Email</label><input type="email" class="form-control" id="df-email" placeholder="doctor@hospital.com" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Consultation Fee (₹)</label><input type="number" class="form-control" id="df-fee" placeholder="500" min="0" /></div>
+        <div class="form-group"><label>Status</label>
+          <select class="form-control" id="df-status"><option value="available">Available</option><option value="busy">Busy</option><option value="off_duty">Off Duty</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-doctor-form')">Cancel</button>
+      <button class="btn btn-primary" id="doctor-form-submit"><i class="fas fa-save"></i> Save Doctor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Form -->
+<div class="modal-overlay" id="modal-appt-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Schedule Appointment</span>
+      <div class="modal-close" onclick="closeModal('modal-appt-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <!-- Hidden fields auto-filled from doctor selection -->
+      <input type="hidden" id="af-dept-id" value="1" />
+      <input type="hidden" id="af-branch-id" value="1" />
+      <div class="two-col">
+        <div class="form-group"><label>Patient *</label>
+          <select class="form-control" id="af-patient-id"><option value="">Loading patients…</option></select>
+        </div>
+        <div class="form-group"><label>Doctor *</label>
+          <select class="form-control" id="af-doctor"><option value="">Select Doctor…</option></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Date *</label><input type="date" class="form-control" id="af-date" /></div>
+        <div class="form-group"><label>Type</label>
+          <select class="form-control" id="af-type"><option value="consultation">Consultation</option><option value="follow_up">Follow-up</option><option value="checkup">Check-up</option><option value="emergency">Emergency</option></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Start Time *</label><input type="time" class="form-control" id="af-time" /></div>
+        <div class="form-group"><label>End Time *</label><input type="time" class="form-control" id="af-end-time" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Status</label>
+          <select class="form-control" id="af-status"><option value="pending">Pending</option><option value="confirmed">Confirmed</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea class="form-control" id="af-notes" rows="2" placeholder="Reason for visit or special notes…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-appt-form')">Cancel</button>
+      <button class="btn btn-primary" id="appt-form-submit"><i class="fas fa-calendar-check"></i> Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- Prescription Form -->
+<div class="modal-overlay" id="modal-rx-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">New Prescription</span>
+      <div class="modal-close" onclick="closeModal('modal-rx-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Patient *</label>
+          <select class="form-control" id="rx-patient-select"><option value="">Loading patients…</option></select>
+        </div>
+        <div class="form-group"><label>Doctor *</label>
+          <select class="form-control" id="rx-doctor"><option value="">Loading doctors…</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Diagnosis</label><textarea class="form-control" id="rx-diagnosis" rows="2" placeholder="Primary diagnosis…"></textarea></div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="fw-700" style="font-size:.9rem"><i class="fas fa-pills text-primary" style="margin-right:.5rem"></i>Medicines</div>
+        <button class="btn btn-outline btn-sm" id="rx-add-medicine"><i class="fas fa-plus"></i> Add Medicine</button>
+      </div>
+      <div id="rx-medicine-list"></div>
+      <div class="form-group mt-4"><label>Doctor Notes</label><textarea class="form-control" id="rx-notes" rows="2" placeholder="Follow-up instructions, dietary advice…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-rx-form')">Cancel</button>
+      <button class="btn btn-primary" id="rx-form-submit"><i class="fas fa-file-prescription"></i> Issue Prescription</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PAGE TEMPLATES (script type=text/html — not executed,
+     read by app.js router; works on file:// with no server)
+════════════════════════════════════════════════════════ -->
+
+<script type="text/html" id="tpl-dashboard">
+<div class="page active" id="page-dashboard">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="page-title">Good morning, Dr. Admin 👋</h1>
+      <p class="page-subtitle">Here's what's happening at MediCare Hospital today</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline" onclick="toast('Refreshing data...','info')"><i class="fas fa-sync-alt"></i> <span class="btn-text-hide">Refresh</span></button>
+      <button class="btn btn-primary" onclick="navigate('appointments')"><i class="fas fa-calendar-plus"></i> <span class="btn-text-hide">New Appointment</span></button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue">
+      <div class="stat-icon blue"><i class="fas fa-user-injured"></i></div>
+      <div>
+        <div class="stat-value count-up" data-target="2847">0</div>
+        <div class="stat-label">Total Patients</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 12% this month</div>
+      </div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-icon teal"><i class="fas fa-user-md"></i></div>
+      <div>
+        <div class="stat-value count-up" data-target="48">0</div>
+        <div class="stat-label">Active Doctors</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 3 new this month</div>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-icon success"><i class="fas fa-calendar-check"></i></div>
+      <div>
+        <div class="stat-value count-up" data-target="126">0</div>
+        <div class="stat-label">Today's Appointments</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 8% vs yesterday</div>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div>
+      <div>
+        <div class="stat-value">$<span class="count-up" data-target="94250">0</span></div>
+        <div class="stat-label">Monthly Revenue</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 18% vs last month</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="three-col mb-6">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-chart-bar text-primary" style="margin-right:.5rem"></i>Weekly Appointments</span>
+        <div class="chart-tabs">
+          <span class="chart-tab active">Week</span>
+          <span class="chart-tab">Month</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container"><canvas id="appt-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-chart-pie text-teal" style="margin-right:.5rem"></i>Departments</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" style="height:220px"><canvas id="dept-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="three-col mb-6">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-chart-line text-primary" style="margin-right:.5rem"></i>Patient Statistics</span>
+        <div class="chart-tabs">
+          <span class="chart-tab active">2024</span>
+          <span class="chart-tab">2023</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container"><canvas id="patient-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-history text-warning" style="margin-right:.5rem"></i>Recent Activity</span>
+        <a href="#" class="text-primary text-sm fw-500">View all</a>
+      </div>
+      <div class="card-body" style="padding-top:.5rem">
+        <div id="activity-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="two-col">
+    <!-- Today's Schedule -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-clock text-teal" style="margin-right:.5rem"></i>Today's Schedule</span>
+        <button class="btn btn-primary btn-sm" onclick="navigate('appointments')">View All</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="table">
+          <thead><tr><th>Patient</th><th>Doctor</th><th>Time</th><th>Status</th></tr></thead>
+          <tbody id="dashboard-schedule-body">
+            <tr>
+              <td><div class="flex items-center gap-2"><div class="avatar avatar-sm" style="background:#2563EB">EJ</div> Emma Johnson</div></td>
+              <td>Dr. Sarah Chen</td><td>09:00 AM</td><td><span class="badge badge-success">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td><div class="flex items-center gap-2"><div class="avatar avatar-sm" style="background:#0D9488">MC</div> Michael Chen</div></td>
+              <td>Dr. James Wilson</td><td>10:30 AM</td><td><span class="badge badge-warning">Pending</span></td>
+            </tr>
+            <tr>
+              <td><div class="flex items-center gap-2"><div class="avatar avatar-sm" style="background:#8B5CF6">SW</div> Sophia Williams</div></td>
+              <td>Dr. Priya Nair</td><td>11:00 AM</td><td><span class="badge badge-success">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td><div class="flex items-center gap-2"><div class="avatar avatar-sm" style="background:#F59E0B">OM</div> Olivia Martinez</div></td>
+              <td>Dr. Ahmed Hassan</td><td>02:00 PM</td><td><span class="badge badge-danger">Cancelled</span></td>
+            </tr>
+            <tr>
+              <td><div class="flex items-center gap-2"><div class="avatar avatar-sm" style="background:#EF4444">JA</div> James Anderson</div></td>
+              <td>Dr. Daniel Lee</td><td>03:30 PM</td><td><span class="badge badge-warning">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Department Load -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-hospital text-purple" style="margin-right:.5rem"></i>Department Load</span>
+        <span class="badge badge-primary">This Week</span>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Cardiology</span><span class="text-sm fw-700" style="color:var(--primary)">85%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="85" style="background:var(--primary);width:0"></div></div>
+        </div>
+        <div class="mb-4">
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Endocrinology</span><span class="text-sm fw-700" style="color:var(--teal)">72%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="72" style="background:var(--teal);width:0"></div></div>
+        </div>
+        <div class="mb-4">
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Neurology</span><span class="text-sm fw-700" style="color:var(--purple)">68%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="68" style="background:var(--purple);width:0"></div></div>
+        </div>
+        <div class="mb-4">
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Nephrology</span><span class="text-sm fw-700" style="color:var(--warning)">59%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="59" style="background:var(--warning);width:0"></div></div>
+        </div>
+        <div class="mb-4">
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Orthopedics</span><span class="text-sm fw-700" style="color:var(--success)">45%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="45" style="background:var(--success);width:0"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Pulmonology</span><span class="text-sm fw-700" style="color:var(--danger)">38%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="38" style="background:var(--danger);width:0"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-patients">
+<div class="page" id="page-patients">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Patient Management</h1><p class="page-subtitle">Manage and track all registered patients</p></div>
+    <button id="patient-form-add-btn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Patient</button>
+  </div>
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value" id="pat-total">—</div><div class="stat-label">Total Patients</div></div></div>
+    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-heartbeat"></i></div><div><div class="stat-value" id="pat-active">—</div><div class="stat-label">Active</div></div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="pat-recovered">—</div><div class="stat-label">Recovered</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-exclamation-triangle"></i></div><div><div class="stat-value" id="pat-critical">—</div><div class="stat-label">Critical</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header flex-wrap gap-3">
+      <span class="card-title">All Patients</span>
+      <div class="flex gap-3 flex-wrap flex-1 justify-end">
+        <div class="search-bar" style="max-width:280px"><i class="fas fa-search"></i><input type="search" id="patient-search" placeholder="Search patients…" /></div>
+        <select class="form-control" id="patient-status-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem"><option value="">All Status</option><option>active</option><option>recovered</option><option>critical</option></select>
+        <button class="btn btn-outline" onclick="toast('Exporting…','info')"><i class="fas fa-download"></i> Export</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Patient ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Contact</th><th>Disease</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="patients-tbody"></tbody>
+    </table></div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <span class="pagination-info">Loading…</span>
+      <div class="pagination" id="patient-pg"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-doctors">
+<div class="page" id="page-doctors">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Doctor Management</h1><p class="page-subtitle">Manage medical staff profiles and availability</p></div>
+    <button id="doctor-form-add-btn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Doctor</button>
+  </div>
+  <div class="filter-bar mb-6">
+    <div class="search-bar" style="max-width:320px"><i class="fas fa-search"></i><input type="search" id="doctor-search" placeholder="Search by name or department…" /></div>
+    <select class="form-control" id="doctor-dept-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem">
+      <option>All Departments</option><option>Cardiology</option><option>Neurology</option><option>Endocrinology</option><option>Nephrology</option><option>Orthopedics</option><option>Pulmonology</option><option>Dermatology</option><option>General Surgery</option>
+    </select>
+  </div>
+  <div class="grid grid-4 gap-6" id="doctors-grid"></div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-appointments">
+<div class="page" id="page-appointments">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="page-title">Appointment Management</h1>
+      <p class="page-subtitle">Schedule and manage patient appointments</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-appt-form')">
+      <i class="fas fa-calendar-plus"></i> New Appointment
+    </button>
+  </div>
+
+  <!-- Status Summary -->
+  <div class="flex gap-3 mb-6 flex-wrap">
+    <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
+      <div style="width:40px;height:40px;background:#D1FAE5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--success)"><i class="fas fa-check-circle"></i></div>
+      <div><div class="fw-800 text-xl" id="appt-confirmed">—</div><div class="text-xs text-muted">Confirmed</div></div>
+    </div>
+    <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
+      <div style="width:40px;height:40px;background:#FEF3C7;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--warning)"><i class="fas fa-hourglass-half"></i></div>
+      <div><div class="fw-800 text-xl" id="appt-pending">—</div><div class="text-xs text-muted">Pending</div></div>
+    </div>
+    <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
+      <div style="width:40px;height:40px;background:var(--gray-100);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gray-500)"><i class="fas fa-check-double"></i></div>
+      <div><div class="fw-800 text-xl" id="appt-completed">—</div><div class="text-xs text-muted">Completed</div></div>
+    </div>
+    <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
+      <div style="width:40px;height:40px;background:#FEE2E2;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--danger)"><i class="fas fa-times-circle"></i></div>
+      <div><div class="fw-800 text-xl" id="appt-cancelled">—</div><div class="text-xs text-muted">Cancelled</div></div>
+    </div>
+  </div>
+
+  <div class="two-col mb-6">
+    <!-- Calendar -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-calendar text-primary" style="margin-right:.5rem"></i>Calendar</span>
+      </div>
+      <div class="card-body" id="mini-calendar"></div>
+    </div>
+
+    <!-- Upcoming Today -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Upcoming Today</span>
+        <span class="badge badge-primary">8 remaining</span>
+      </div>
+      <div class="card-body" style="padding:.5rem 1rem">
+        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--gray-100)">
+          <div style="text-align:center;min-width:42px"><div class="fw-700" style="font-size:.9rem;color:#2563EB">09:00</div><div class="text-xs text-muted">AM</div></div>
+          <div style="flex:1"><div class="fw-600" style="font-size:.875rem">Emma Johnson</div><div class="text-xs text-muted">Dr. Sarah Chen</div></div>
+          <span class="badge badge-primary" style="font-size:.68rem">Follow-up</span>
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--gray-100)">
+          <div style="text-align:center;min-width:42px"><div class="fw-700" style="font-size:.9rem;color:#0D9488">10:30</div><div class="text-xs text-muted">AM</div></div>
+          <div style="flex:1"><div class="fw-600" style="font-size:.875rem">Michael Chen</div><div class="text-xs text-muted">Dr. James Wilson</div></div>
+          <span class="badge badge-primary" style="font-size:.68rem">Consultation</span>
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--gray-100)">
+          <div style="text-align:center;min-width:42px"><div class="fw-700" style="font-size:.9rem;color:#8B5CF6">11:00</div><div class="text-xs text-muted">AM</div></div>
+          <div style="flex:1"><div class="fw-600" style="font-size:.875rem">Sophia Williams</div><div class="text-xs text-muted">Dr. Priya Nair</div></div>
+          <span class="badge badge-primary" style="font-size:.68rem">Check-up</span>
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0">
+          <div style="text-align:center;min-width:42px"><div class="fw-700" style="font-size:.9rem;color:#F59E0B">02:00</div><div class="text-xs text-muted">PM</div></div>
+          <div style="flex:1"><div class="fw-600" style="font-size:.875rem">James Anderson</div><div class="text-xs text-muted">Dr. Daniel Lee</div></div>
+          <span class="badge badge-primary" style="font-size:.68rem">Follow-up</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header flex-wrap gap-3">
+      <span class="card-title">All Appointments</span>
+      <div class="flex gap-3 flex-wrap flex-1 justify-end">
+        <div class="search-bar" style="max-width:280px"><i class="fas fa-search"></i><input type="search" id="appt-search" placeholder="Search appointments…" /></div>
+        <select class="form-control" id="appt-status-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem"><option value="">All Status</option><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Department</th><th>Date</th><th>Time</th><th>Status</th><th>Type</th><th>Actions</th></tr></thead>
+      <tbody id="appt-tbody"></tbody>
+    </table></div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <span class="pagination-info">Loading…</span>
+      <div class="pagination" id="appt-pg"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-prescriptions">
+<div class="page" id="page-prescriptions">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="page-title">Prescriptions & Treatment</h1>
+      <p class="page-subtitle">Patient treatment history, diagnoses, and prescriptions</p>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-rx-form')">
+      <i class="fas fa-plus"></i> New Prescription
+    </button>
+  </div>
+  <div id="rx-list"></div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-pharmacy">
+<div class="page" id="page-pharmacy">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Pharmacy Management</h1><p class="page-subtitle">Medicine inventory, stock levels, and supplier information</p></div>
+    <button id="medicine-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Medicine</button>
+  </div>
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-pills"></i></div><div><div class="stat-value" id="ph-total">—</div><div class="stat-label">Total Medicines</div></div></div>
+    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="ph-instock">—</div><div class="stat-label">In Stock</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-exclamation"></i></div><div><div class="stat-value" id="ph-lowstock">—</div><div class="stat-label">Low Stock</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-times-circle"></i></div><div><div class="stat-value" id="ph-critical">—</div><div class="stat-label">Critical / Out</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header flex-wrap gap-3">
+      <span class="card-title">Medicine Inventory</span>
+      <div class="flex gap-3 flex-wrap flex-1 justify-end">
+        <div class="search-bar" style="max-width:280px"><i class="fas fa-search"></i><input type="search" id="pharmacy-search" placeholder="Search medicines…" /></div>
+        <select class="form-control" id="pharmacy-status-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem"><option value="">All Status</option><option value="in_stock">In Stock</option><option value="low_stock">Low Stock</option><option value="out_of_stock">Out of Stock</option></select>
+        <button class="btn btn-outline" onclick="toast('Exporting…','info')"><i class="fas fa-download"></i> Export</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Medicine</th><th>Stock</th><th>Expiry</th><th>Supplier</th><th>Price/Unit</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="pharmacy-tbody"></tbody>
+    </table></div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <span class="pagination-info">Loading…</span>
+      <div class="pagination" id="pharmacy-pg"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-billing">
+<div class="page" id="page-billing">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Billing &amp; Invoices</h1><p class="page-subtitle">Manage patient invoices, payments, and financial records</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="billing-search" placeholder="Search invoices…" /></div>
+      <select class="form-control" id="billing-status-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem"><option value="">All Status</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="partial">Partial</option></select>
+      <button id="bill-add-btn" class="btn btn-primary"><i class="fas fa-file-invoice"></i> New Invoice</button>
+    </div>
+  </div>
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-rupee-sign"></i></div><div><div class="stat-value" id="bill-total">—</div><div class="stat-label">Revenue (Month)</div></div></div>
+    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="bill-paid">—</div><div class="stat-label">Paid</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-clock"></i></div><div><div class="stat-value" id="bill-pending">—</div><div class="stat-label">Pending</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-times"></i></div><div><div class="stat-value" id="bill-overdue">—</div><div class="stat-label">Overdue</div></div></div>
+  </div>
+  <div id="billing-list"></div>
+  <div style="padding:1rem 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <span class="pagination-info"></span>
+    <div class="pagination" id="billing-pg"></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-staff">
+<div class="page" id="page-staff">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Staff Management</h1><p class="page-subtitle">Hospital staff directory and attendance tracking</p></div>
+    <button id="staff-add-btn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Staff</button>
+  </div>
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value" id="staff-total">—</div><div class="stat-label">Total Staff</div></div></div>
+    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-user-check"></i></div><div><div class="stat-value" id="staff-present">—</div><div class="stat-label">Present Today</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-user-times"></i></div><div><div class="stat-value" id="staff-absent">—</div><div class="stat-label">Absent</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-umbrella-beach"></i></div><div><div class="stat-value" id="staff-leave">—</div><div class="stat-label">On Leave</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header flex-wrap gap-3">
+      <span class="card-title">Staff Directory</span>
+      <div class="flex gap-3 flex-wrap flex-1 justify-end">
+        <div class="search-bar" style="max-width:280px"><i class="fas fa-search"></i><input type="search" id="staff-search" placeholder="Search staff…" /></div>
+        <select class="form-control" id="staff-dept-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem"><option value="">All Departments</option><option>Nursing</option><option>Radiology</option><option>Laboratory</option><option>Admin</option><option>Pharmacy</option></select>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Staff ID</th><th>Name</th><th>Department</th><th>Position</th><th>Contact</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="staff-tbody"></tbody>
+    </table></div>
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <span class="pagination-info">Loading…</span>
+      <div class="pagination" id="staff-pg"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-reports">
+<div class="page" id="page-reports">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="page-title">Reports &amp; Analytics</h1>
+      <p class="page-subtitle">Insights into hospital performance and financial health</p>
+    </div>
+    <div class="flex gap-3">
+      <button class="btn btn-outline export-btn" data-format="PDF"><i class="fas fa-file-pdf"></i> Export PDF</button>
+      <button class="btn btn-outline export-btn" data-format="Excel"><i class="fas fa-file-excel"></i> Export Excel</button>
+    </div>
+  </div>
+
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value">$577K</div><div class="stat-label">YTD Revenue</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 22% vs last year</div></div></div>
+    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-user-injured"></i></div><div><div class="stat-value">14,280</div><div class="stat-label">Patients YTD</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 15% vs last year</div></div></div>
+    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-calendar-check"></i></div><div><div class="stat-value">8,940</div><div class="stat-label">Appointments YTD</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 11% vs last year</div></div></div>
+    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-percentage"></i></div><div><div class="stat-value">87.4%</div><div class="stat-label">Bed Occupancy</div><div class="stat-change down"><i class="fas fa-arrow-down"></i> 3% vs last month</div></div></div>
+  </div>
+
+  <div class="two-col mb-6">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-chart-bar text-primary" style="margin-right:.5rem"></i>Revenue vs Expenses</span>
+        <div class="chart-tabs"><span class="chart-tab active">2024</span><span class="chart-tab">2023</span></div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" style="height:280px"><canvas id="revenue-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fas fa-chart-line text-teal" style="margin-right:.5rem"></i>Patient Admissions</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" style="height:280px"><canvas id="rpt-patient-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Quick Report Actions</span>
+      <button id="rpt-generate" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Generate Report</button>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-4 gap-4">
+        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/revenue').then(()=>toast('Revenue report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-chart-bar" style="font-size:1.5rem;color:var(--primary)"></i><span class="fw-600">Revenue</span></button>
+        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/patients').then(()=>toast('Patient report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-user-injured" style="font-size:1.5rem;color:var(--teal)"></i><span class="fw-600">Patients</span></button>
+        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/appointments').then(()=>toast('Appointment report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-calendar-check" style="font-size:1.5rem;color:var(--success)"></i><span class="fw-600">Appointments</span></button>
+        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/pharmacy').then(()=>toast('Pharmacy report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-pills" style="font-size:1.5rem;color:var(--warning)"></i><span class="fw-600">Pharmacy</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-settings">
+<div class="page" id="page-settings">
+  <div class="page-header">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-subtitle">Configure hospital system preferences</p>
+  </div>
+
+  <div class="two-col">
+    <!-- Left column -->
+    <div>
+      <div class="card mb-4">
+        <div class="card-header"><span class="card-title"><i class="fas fa-user-circle text-primary" style="margin-right:.5rem"></i>Profile Settings</span></div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1.5rem">
+            <div class="avatar avatar-xl" style="background:#2563EB">AD</div>
+            <div>
+              <div class="fw-700">Dr. Admin User</div>
+              <div class="text-sm text-muted mb-2">Super Administrator</div>
+              <button class="btn btn-outline btn-sm" onclick="toast('Upload feature coming soon','info')"><i class="fas fa-camera"></i> Change Photo</button>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="form-group"><label>First Name</label><input class="form-control" value="Admin" /></div>
+            <div class="form-group"><label>Last Name</label><input class="form-control" value="User" /></div>
+          </div>
+          <div class="form-group"><label>Email</label><input class="form-control" value="admin@medcare.com" /></div>
+          <div class="form-group"><label>Phone</label><input class="form-control" value="+1 (555) 000-1234" /></div>
+          <div class="form-group"><label>Department</label>
+            <select class="form-control"><option>Administration</option><option>Cardiology</option><option>Neurology</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><span class="card-title"><i class="fas fa-lock text-warning" style="margin-right:.5rem"></i>Security</span></div>
+        <div class="card-body">
+          <div class="form-group"><label>Current Password</label><input type="password" class="form-control" placeholder="••••••••" /></div>
+          <div class="form-group"><label>New Password</label><input type="password" class="form-control" placeholder="••••••••" /></div>
+          <div class="form-group"><label>Confirm New Password</label><input type="password" class="form-control" placeholder="••••••••" /></div>
+          <button class="btn btn-warning btn-sm" onclick="toast('Password updated successfully','success')"><i class="fas fa-key"></i> Update Password</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div>
+      <div class="card mb-4">
+        <div class="card-header"><span class="card-title"><i class="fas fa-hospital text-teal" style="margin-right:.5rem"></i>Hospital Information</span></div>
+        <div class="card-body">
+          <div class="form-group"><label>Hospital Name</label><input class="form-control" value="MediCare General Hospital" /></div>
+          <div class="form-group"><label>Registration Number</label><input class="form-control" value="HOS-2019-4821" /></div>
+          <div class="form-group"><label>Address</label><textarea class="form-control" rows="3">123 Healthcare Avenue, Medical District, NY 10001</textarea></div>
+          <div class="two-col">
+            <div class="form-group"><label>Phone</label><input class="form-control" value="+1 (555) 800-9000" /></div>
+            <div class="form-group"><label>Emergency</label><input class="form-control" value="+1 (555) 911-0000" /></div>
+          </div>
+          <div class="form-group"><label>Email</label><input class="form-control" value="info@medcare.com" /></div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><span class="card-title"><i class="fas fa-bell text-purple" style="margin-right:.5rem"></i>Notifications</span></div>
+        <div class="card-body" id="notif-toggles">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;gap:1rem;margin-top:.5rem">
+    <button class="btn btn-outline" onclick="toast('Changes discarded','warning')">Cancel</button>
+    <button class="btn btn-primary" id="settings-save"><i class="fas fa-save"></i> Save Settings</button>
+  </div>
+</div>
+</script>
+
+<!-- Medicine Form Modal -->
+<div class="modal-overlay" id="modal-medicine-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="medicine-form-title">Add Medicine</span>
+      <div class="modal-close" onclick="closeModal('modal-medicine-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Medicine Name *</label><input class="form-control" id="mf-name" placeholder="e.g. Paracetamol 500mg" /></div>
+        <div class="form-group"><label>Category</label><input class="form-control" id="mf-category" placeholder="e.g. Analgesic" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Stock Quantity</label><input type="number" class="form-control" id="mf-stock" min="0" placeholder="0" /></div>
+        <div class="form-group"><label>Unit Price (₹)</label><input type="number" class="form-control" id="mf-price" min="0" step="0.01" placeholder="0.00" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="mf-expiry" /></div>
+        <div class="form-group"><label>Supplier</label><input class="form-control" id="mf-supplier" placeholder="Supplier name" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-medicine-form')">Cancel</button>
+      <button class="btn btn-primary" id="medicine-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Staff Form Modal -->
+<div class="modal-overlay" id="modal-staff-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="staff-form-title">Add Staff Member</span>
+      <div class="modal-close" onclick="closeModal('modal-staff-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Full Name *</label><input class="form-control" id="sf-name" placeholder="Staff full name" /></div>
+        <div class="form-group"><label>Position / Role</label><input class="form-control" id="sf-position" placeholder="e.g. Head Nurse" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Department</label><select class="form-control" id="sf-dept"><option>Nursing</option><option>Radiology</option><option>Laboratory</option><option>Admin</option><option>Pharmacy</option><option>Maintenance</option></select></div>
+        <div class="form-group"><label>Status</label><select class="form-control" id="sf-status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Phone</label><input class="form-control" id="sf-contact" placeholder="Contact number" /></div>
+        <div class="form-group"><label>Email</label><input type="email" class="form-control" id="sf-email" placeholder="email@hospital.com" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-staff-form')">Cancel</button>
+      <button class="btn btn-primary" id="staff-form-submit"><i class="fas fa-save"></i> Save Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bill / Invoice Form Modal -->
+<div class="modal-overlay" id="modal-bill-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Create Invoice</span>
+      <div class="modal-close" onclick="closeModal('modal-bill-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Patient ID *</label><input class="form-control" id="bf-patient" placeholder="Patient ID" /></div>
+        <div class="form-group"><label>Total Amount (₹) *</label><input type="number" class="form-control" id="bf-amount" min="0" step="0.01" placeholder="0.00" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Payment Mode</label><select class="form-control" id="bf-paymode"><option value="cash">Cash</option><option value="card">Card</option><option value="upi">UPI</option><option value="insurance">Insurance</option></select></div>
+        <div class="form-group"><label>Branch ID</label><input class="form-control" id="bf-branch" placeholder="1" value="1" /></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea class="form-control" id="bf-notes" rows="2" placeholder="Optional notes…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-bill-form')">Cancel</button>
+      <button class="btn btn-primary" id="bill-form-submit"><i class="fas fa-save"></i> Create Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- Branch Form Modal -->
+<div class="modal-overlay" id="modal-branch-form">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Branch</span>
+      <div class="modal-close" onclick="closeModal('modal-branch-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Branch Name *</label><input class="form-control" id="brf-name" placeholder="e.g. North Wing" /></div>
+      <div class="form-group"><label>Address</label><textarea class="form-control" id="brf-address" rows="2" placeholder="Branch address"></textarea></div>
+      <div class="two-col">
+        <div class="form-group"><label>Phone</label><input class="form-control" id="brf-phone" placeholder="Phone number" /></div>
+        <div class="form-group"><label>Email</label><input type="email" class="form-control" id="brf-email" placeholder="branch@hospital.com" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-branch-form')">Cancel</button>
+      <button class="btn btn-primary" id="branch-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Department Form Modal -->
+<div class="modal-overlay" id="modal-dept-form">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Department</span>
+      <div class="modal-close" onclick="closeModal('modal-dept-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Department Name *</label><input class="form-control" id="dpf-name" placeholder="e.g. Cardiology" /></div>
+      <div class="form-group"><label>Branch</label><input type="number" class="form-control" id="dpf-branch" placeholder="Branch ID" value="1" /></div>
+      <div class="form-group"><label>Description</label><textarea class="form-control" id="dpf-desc" rows="2" placeholder="Optional description"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-dept-form')">Cancel</button>
+      <button class="btn btn-primary" id="dept-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nurse Form Modal -->
+<div class="modal-overlay" id="modal-nurse-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Add Nurse</span>
+      <div class="modal-close" onclick="closeModal('modal-nurse-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Full Name *</label><input class="form-control" id="nrf-name" placeholder="Nurse full name" /></div>
+      <div class="two-col">
+        <div class="form-group"><label>Department *</label>
+          <select class="form-control" id="nrf-dept"><option value="">Loading departments…</option></select>
+        </div>
+        <div class="form-group"><label>Branch *</label>
+          <select class="form-control" id="nrf-branch"><option value="">Loading branches…</option></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Phone</label><input class="form-control" id="nrf-phone" placeholder="+91 9876543210" /></div>
+        <div class="form-group"><label>Email</label><input type="email" class="form-control" id="nrf-email" placeholder="nurse@hospital.com" /></div>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select class="form-control" id="nrf-status">
+          <option value="active">Active</option><option value="on_leave">On Leave</option><option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-nurse-form')">Cancel</button>
+      <button class="btn btn-primary" id="nurse-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admission Form Modal -->
+<div class="modal-overlay" id="modal-admission-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Admit Patient</span>
+      <div class="modal-close" onclick="closeModal('modal-admission-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Patient ID *</label><input class="form-control" id="adf-patient" placeholder="Patient ID" /></div>
+        <div class="form-group"><label>Doctor ID</label><input class="form-control" id="adf-doctor" placeholder="Doctor ID" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Room Number</label><input class="form-control" id="adf-room" placeholder="e.g. 201A" /></div>
+        <div class="form-group"><label>Admission Date</label><input type="date" class="form-control" id="adf-date" /></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea class="form-control" id="adf-notes" rows="2" placeholder="Reason for admission…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-admission-form')">Cancel</button>
+      <button class="btn btn-primary" id="admission-form-submit"><i class="fas fa-bed"></i> Admit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pay Structure Form Modal -->
+<div class="modal-overlay" id="modal-paystructure-form">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Pay Structure</span>
+      <div class="modal-close" onclick="closeModal('modal-paystructure-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Role / Position *</label><input class="form-control" id="psf-role" placeholder="e.g. Head Nurse" /></div>
+      <div class="two-col">
+        <div class="form-group"><label>Basic Salary (₹) *</label><input type="number" class="form-control" id="psf-basic" min="0" placeholder="0" /></div>
+        <div class="form-group"><label>HRA (₹)</label><input type="number" class="form-control" id="psf-hra" min="0" placeholder="0" /></div>
+      </div>
+      <div class="form-group"><label>Other Allowances (₹)</label><input type="number" class="form-control" id="psf-allowances" min="0" placeholder="0" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-paystructure-form')">Cancel</button>
+      <button class="btn btn-primary" id="paystructure-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Salary Form Modal -->
+<div class="modal-overlay" id="modal-salary-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Add Salary Record</span>
+      <div class="modal-close" onclick="closeModal('modal-salary-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Staff ID *</label><input class="form-control" id="slf-staff" placeholder="Staff ID" /></div>
+        <div class="form-group"><label>Month *</label><input type="month" class="form-control" id="slf-month" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Basic Salary (₹)</label><input type="number" class="form-control" id="slf-basic" min="0" placeholder="0" /></div>
+        <div class="form-group"><label>Deductions (₹)</label><input type="number" class="form-control" id="slf-deductions" min="0" placeholder="0" /></div>
+      </div>
+      <div class="form-group"><label>Payment Mode</label><select class="form-control" id="slf-paymode"><option value="bank_transfer">Bank Transfer</option><option value="cash">Cash</option><option value="cheque">Cheque</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-salary-form')">Cancel</button>
+      <button class="btn btn-primary" id="salary-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page Templates for new sections -->
+
+<script type="text/html" id="tpl-branches">
+<div class="page" id="page-branches">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Hospital Branches</h1><p class="page-subtitle">Manage branch locations and facilities</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="branch-search" placeholder="Search branches…" /></div>
+      <button id="branch-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Branch</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Branch ID</th><th>Name</th><th>Address</th><th>Phone</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="branches-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-departments">
+<div class="page" id="page-departments">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Departments</h1><p class="page-subtitle">Manage hospital departments and their branches</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="dept-search" placeholder="Search departments…" /></div>
+      <button id="dept-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Department</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Dept ID</th><th>Name</th><th>Branch</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="departments-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-nurses">
+<div class="page" id="page-nurses">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Nurses</h1><p class="page-subtitle">Manage nursing staff across departments</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="nurse-search" placeholder="Search nurses…" /></div>
+      <button id="nurse-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Nurse</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Nurse ID</th><th>Name</th><th>Department</th><th>Phone</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="nurses-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-admissions">
+<div class="page" id="page-admissions">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Patient Admissions</h1><p class="page-subtitle">Track inpatient admissions and discharges</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="admission-search" placeholder="Search admissions…" /></div>
+      <button id="admission-add-btn" class="btn btn-primary"><i class="fas fa-bed"></i> Admit Patient</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Admission ID</th><th>Patient</th><th>Doctor</th><th>Room</th><th>Admitted</th><th>Discharged</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="admissions-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-equipment">
+<div class="page" id="page-equipment">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Equipment</h1><p class="page-subtitle">Hospital equipment inventory and maintenance tracking</p></div>
+    <div class="search-bar" style="max-width:280px"><i class="fas fa-search"></i><input type="search" id="equipment-search" placeholder="Search equipment…" /></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Equipment</th><th>Department</th><th>Serial No.</th><th>Last Maintenance</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="equipment-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-shiftlogs">
+<div class="page" id="page-shiftlogs">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Shift Logs</h1><p class="page-subtitle">Staff shift schedules and attendance logs</p></div>
+    <div class="search-bar" style="max-width:280px"><i class="fas fa-search"></i><input type="search" id="shiftlog-search" placeholder="Search shift logs…" /></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Log ID</th><th>Staff</th><th>Branch</th><th>Date</th><th>Start</th><th>End</th><th>Status</th></tr></thead>
+      <tbody id="shiftlogs-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-paystructures">
+<div class="page" id="page-paystructures">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Pay Structures</h1><p class="page-subtitle">Define salary components by role and position</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="paystructure-search" placeholder="Search pay structures…" /></div>
+      <button id="paystructure-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Structure</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Staff / Position</th><th>Base Salary</th><th>Allowance</th><th>OT Rate</th><th>Gross</th><th>Actions</th></tr></thead>
+      <tbody id="paystructures-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<script type="text/html" id="tpl-salaries">
+<div class="page" id="page-salaries">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Salaries</h1><p class="page-subtitle">Process and track staff salary payments</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="salary-search" placeholder="Search salaries…" /></div>
+      <button id="salary-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Process Salary</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Staff</th><th>Month</th><th>Basic</th><th>Deductions</th><th>Net Pay</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="salaries-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<!-- Scripts -->
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+
+<!-- ══ OT Page Template ══ -->
+<script type="text/html" id="tpl-ot">
+<div class="page" id="page-ot">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Operation Theatre</h1><p class="page-subtitle">Manage theatres, OT schedules, and surgical procedures</p></div>
+    <button id="ot-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Schedule Surgery</button>
+  </div>
+  <div class="card mb-6">
+    <div class="card-header"><span class="card-title">Operation Theatres</span></div>
+    <div class="card-body" id="ot-theatres-list"><div class="loading-state"><div class="spinner"></div><p>Loading…</p></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">OT Schedules</span></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Theatre</th><th>Patient</th><th>Doctor</th><th>Procedure</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="ot-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<!-- ══ Lab Results Page Template ══ -->
+<script type="text/html" id="tpl-labresults">
+<div class="page" id="page-labresults">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Lab Results</h1><p class="page-subtitle">Manage diagnostic lab tests and results</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="lab-search" placeholder="Search results…" /></div>
+      <button id="lab-add-btn" class="btn btn-primary"><i class="fas fa-flask"></i> Add Result</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Test</th><th>Result</th><th>Normal Range</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="lab-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<!-- ══ Rooms Page Template ══ -->
+<script type="text/html" id="tpl-rooms">
+<div class="page" id="page-rooms">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Rooms &amp; Beds</h1><p class="page-subtitle">Manage hospital rooms, wards, and bed availability</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="room-search" placeholder="Search rooms…" /></div>
+      <select class="form-control" id="room-type-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem"><option>All Types</option><option>general</option><option>private</option><option>icu</option><option>ot</option></select>
+      <button id="room-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Room</button>
+    </div>
+  </div>
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-door-open"></i></div><div><div class="stat-value" id="room-total">—</div><div class="stat-label">Total Rooms</div></div></div>
+    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="room-avail">—</div><div class="stat-label">Available</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-bed"></i></div><div><div class="stat-value" id="room-occ">—</div><div class="stat-label">Occupied</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-wrench"></i></div><div><div class="stat-value" id="room-maint">—</div><div class="stat-label">Maintenance</div></div></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Room ID</th><th>Room No.</th><th>Type</th><th>Capacity</th><th>Branch</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="rooms-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<!-- ══ Doctor Shifts Page Template ══ -->
+<script type="text/html" id="tpl-doctorshifts">
+<div class="page" id="page-doctorshifts">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Doctor Shifts</h1><p class="page-subtitle">Schedule and manage doctor shift assignments</p></div>
+    <div class="flex gap-2">
+      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="doctorshift-search" placeholder="Search shifts…" /></div>
+      <button id="doctorshift-add-btn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Shift</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Shift ID</th><th>Doctor</th><th>Branch</th><th>Date</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="doctorshifts-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+</script>
+
+<!-- ══ Pharmacy Inventory Page Template ══ -->
+<script type="text/html" id="tpl-pharmacyinventory">
+<div class="page" id="page-pharmacyinventory">
+  <div class="page-header flex items-center justify-between flex-wrap gap-4">
+    <div><h1 class="page-title">Pharmacy Inventory</h1><p class="page-subtitle">Per-pharmacy stock management and inventory tracking</p></div>
+  </div>
+  <div id="pharmacy-branches-list" class="mb-6"></div>
+  <div id="pharmacy-inv-section" style="display:none" class="card card-body"></div>
+</div>
+</script>
+
+<!-- ══ OT Form Modal ══ -->
+<div class="modal-overlay" id="modal-ot-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Schedule OT Surgery</span>
+      <div class="modal-close" onclick="closeModal('modal-ot-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Theatre ID *</label><input type="number" class="form-control" id="otf-theatre" placeholder="Theatre ID" /></div>
+        <div class="form-group"><label>Procedure</label><input class="form-control" id="otf-procedure" placeholder="e.g. Appendectomy" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Patient ID *</label><input class="form-control" id="otf-patient" placeholder="Patient ID" /></div>
+        <div class="form-group"><label>Doctor *</label><select class="form-control" id="otf-doctor"><option value="">Select Doctor…</option></select></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Date *</label><input type="date" class="form-control" id="otf-date" /></div>
+      </div>
+      <div class="two-col">
+        <div class="form-group"><label>Start Time *</label><input type="time" class="form-control" id="otf-start" /></div>
+        <div class="form-group"><label>End Time *</label><input type="time" class="form-control" id="otf-end" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-ot-form')">Cancel</button>
+      <button class="btn btn-primary" id="ot-schedule-submit"><i class="fas fa-save"></i> Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Lab Result Form Modal ══ -->
+<div class="modal-overlay" id="modal-lab-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Add Lab Result</span>
+      <div class="modal-close" onclick="closeModal('modal-lab-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Patient ID *</label><input class="form-control" id="lf-patient" placeholder="Patient ID" /></div>
+        <div class="form-group"><label>Doctor *</label><select class="form-control" id="lf-doctor"><option value="">Select Doctor…</option></select></div>
+      </div>
+      <div class="form-group"><label>Test Name *</label><input class="form-control" id="lf-test" placeholder="e.g. CBC, Blood Glucose, Lipid Panel" /></div>
+      <div class="two-col">
+        <div class="form-group"><label>Result Value</label><input class="form-control" id="lf-result" placeholder="e.g. 5.2 mmol/L" /></div>
+        <div class="form-group"><label>Normal Range</label><input class="form-control" id="lf-range" placeholder="e.g. 3.5–5.5 mmol/L" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-lab-form')">Cancel</button>
+      <button class="btn btn-primary" id="lab-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Room Form Modal ══ -->
+<div class="modal-overlay" id="modal-room-form">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Room</span>
+      <div class="modal-close" onclick="closeModal('modal-room-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Room Number *</label><input class="form-control" id="rf-number" placeholder="e.g. 201A" /></div>
+      <div class="form-group"><label>Branch ID *</label><input type="number" class="form-control" id="rf-branch" placeholder="Branch ID" value="1" /></div>
+      <div class="two-col">
+        <div class="form-group"><label>Type</label><select class="form-control" id="rf-type"><option value="general">General</option><option value="private">Private</option><option value="icu">ICU</option><option value="ot">OT</option></select></div>
+        <div class="form-group"><label>Capacity</label><input type="number" class="form-control" id="rf-capacity" min="1" value="1" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-room-form')">Cancel</button>
+      <button class="btn btn-primary" id="room-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Doctor Shift Form Modal ══ -->
+<div class="modal-overlay" id="modal-doctorshift-form">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Add Doctor Shift</span>
+      <div class="modal-close" onclick="closeModal('modal-doctorshift-form')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body">
+      <div class="two-col">
+        <div class="form-group"><label>Doctor *</label><select class="form-control" id="dsf-doctor"><option value="">Select Doctor…</option></select></div>
+        <div class="form-group"><label>Branch ID *</label><input type="number" class="form-control" id="dsf-branch" placeholder="Branch ID" value="1" /></div>
+      </div>
+      <div class="form-group"><label>Shift Date *</label><input type="date" class="form-control" id="dsf-date" /></div>
+      <div class="two-col">
+        <div class="form-group"><label>Start Time *</label><input type="time" class="form-control" id="dsf-start" /></div>
+        <div class="form-group"><label>End Time *</label><input type="time" class="form-control" id="dsf-end" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-doctorshift-form')">Cancel</button>
+      <button class="btn btn-primary" id="doctorshift-form-submit"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
