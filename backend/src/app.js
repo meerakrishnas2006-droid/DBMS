@@ -64,12 +64,17 @@ app.get('/api/nurses', require('./middleware/auth').protect, require('./middlewa
 app.post('/api/nurses', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','NURSE'), catalogController.createNurse);
 app.get('/api/admissions', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','NURSE','STAFF','BILLING'), catalogController.getAdmissions);
 app.post('/api/admissions', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','STAFF'), catalogController.createAdmission);
+app.put('/api/admissions/:id', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','STAFF'), catalogController.updateAdmission);
 app.get('/api/equipment', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','DOCTOR','NURSE','STAFF'), catalogController.getEquipment);
+app.post('/api/equipment', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF'), catalogController.createEquipment);
+app.put('/api/equipment/:id', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF'), catalogController.updateEquipment);
 app.get('/api/shift-logs', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','NURSE','DOCTOR'), catalogController.getShiftLogs);
+app.post('/api/shift-logs', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF'), catalogController.createShiftLog);
 app.get('/api/pay-structures', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.getPayStructures);
 app.post('/api/pay-structures', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.createPayStructure);
 app.get('/api/salaries', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.getSalaries);
 app.post('/api/salaries', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.createSalary);
+app.put('/api/salaries/:id', require('./middleware/auth').protect, require('./middleware/auth').authorize('ADMIN','STAFF','BILLING'), catalogController.updateSalary);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'API route not found.' });
