@@ -161,6 +161,6 @@ VALUES
 INSERT INTO user_account (username, password_hash, role, staff_id, status)
 VALUES
     ('admin', crypt('admin123', gen_salt('bf')), 'ADMIN', NULL, 'active'),
-    ('doctor.sarah', crypt('doctor123', gen_salt('bf')), 'DOCTOR', NULL, 1),
+    ('doctor.sarah', crypt('doctor123', gen_salt('bf')), 'DOCTOR', NULL, 'active'),
     ('pharmacist.kevin', crypt('pharmacist123', gen_salt('bf')), 'PHARMACIST', 2, 'active'),
     ('billing.fiona', crypt('billing123', gen_salt('bf')), 'BILLING', 4, 'active');

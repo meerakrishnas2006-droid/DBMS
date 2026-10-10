@@ -327,3 +327,90 @@ exports.createSalary = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateAdmission = async (req, res, next) => {
+  try {
+    const { status, dischargeDate, notes } = req.body;
+    const result = await db.query(
+      `UPDATE admission
+       SET status = COALESCE($1, status),
+           discharge_date = COALESCE($2, discharge_date),
+           notes = COALESCE($3, notes),
+           updated_at = NOW()
+       WHERE admission_id = $4
+       RETURNING *`,
+      [status || null, dischargeDate || null, notes || null, req.params.id]
+    );
+    if (!result.rows.length) return sendError(res, 404, 'Admission not found.');
+    return sendSuccess(res, 200, { admission: result.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createEquipment = async (req, res, next) => {
+  try {
+    const { theatreId, equipmentName, equipmentType, serialNumber, status } = req.body;
+    if (!theatreId || !equipmentName) return sendError(res, 400, 'Theatre and equipment name are required.');
+    const result = await db.query(
+      `INSERT INTO equipment (theatre_id, equipment_name, equipment_type, serial_number, status)
+       VALUES ($1, $2, $3, $4, COALESCE($5, 'active')) RETURNING *`,
+      [theatreId, equipmentName, equipmentType || 'general', serialNumber || null, status || 'active']
+    );
+    return sendSuccess(res, 201, { equipment: result.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateEquipment = async (req, res, next) => {
+  try {
+    const result = await db.query(
+      `UPDATE equipment
+       SET equipment_name = COALESCE($1, equipment_name),
+           status = COALESCE($2, status),
+           last_maintenance = COALESCE($3, last_maintenance),
+           updated_at = NOW()
+       WHERE equipment_id = $4 RETURNING *`,
+      [req.body.equipmentName || null, req.body.status || null, req.body.lastMaintenance || null, req.params.id]
+    );
+    if (!result.rows.length) return sendError(res, 404, 'Equipment not found.');
+    return sendSuccess(res, 200, { equipment: result.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createShiftLog = async (req, res, next) => {
+  try {
+    const { staffId, branchId, shiftDate, shiftType, startTime, endTime, status, notes } = req.body;
+    if (!staffId || !branchId || !shiftDate) return sendError(res, 400, 'Staff, branch, and shift date are required.');
+    const result = await db.query(
+      `INSERT INTO shift_log (staff_id, branch_id, shift_date, shift_type, start_time, end_time, status, notes)
+       VALUES ($1, $2, $3, COALESCE($4,'day'), $5, $6, COALESCE($7,'present'), $8) RETURNING *`,
+      [staffId, branchId, shiftDate, shiftType || 'day', startTime || null, endTime || null, status || 'present', notes || null]
+    );
+    return sendSuccess(res, 201, { shiftLog: result.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateSalary = async (req, res, next) => {
+  try {
+    const { status, paymentDate } = req.body;
+    const result = await db.query(
+      `UPDATE salary
+       SET status = COALESCE($1, status),
+           payment_date = COALESCE($2, payment_date),
+           updated_at = NOW()
+       WHERE salary_id = $3 RETURNING *`,
+      [status || null, paymentDate || new Date().toISOString().split('T')[0], req.params.id]
+    );
+    if (!result.rows.length) return sendError(res, 404, 'Salary record not found.');
+    return sendSuccess(res, 200, { salary: result.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+

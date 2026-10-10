@@ -1204,3 +1204,16 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
   font-size: 1.6rem;
   color: var(--danger);
 }
+
+/* ── Table State Rows (loading / empty / error) ────────────── */
+.table-state{display:flex;align-items:center;justify-content:center;gap:.75rem;padding:2.5rem 1rem;color:var(--gray-400);font-size:.9rem}
+.table-state.empty{flex-direction:column;gap:.5rem}
+.table-state.empty i{font-size:2.5rem;color:var(--gray-300)}
+.table-state.error{color:var(--danger)}
+.table-state.error i{font-size:1.5rem}
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:3rem 1rem;color:var(--gray-500)}
+.pagination-info{font-size:.85rem;color:var(--gray-500)}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#0b7c70}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#059669}
+.progress{background:var(--gray-200);border-radius:99px;height:6px;overflow:hidden}
+.progress-bar{height:100%;border-radius:99px;transition:width .5s ease}
