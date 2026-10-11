@@ -11,10 +11,50 @@
   </div>
 
   <div class="stats-grid mb-6">
-    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value">$577K</div><div class="stat-label">YTD Revenue</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 22% vs last year</div></div></div>
-    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-user-injured"></i></div><div><div class="stat-value">14,280</div><div class="stat-label">Patients YTD</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 15% vs last year</div></div></div>
-    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-calendar-check"></i></div><div><div class="stat-value">8,940</div><div class="stat-label">Appointments YTD</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 11% vs last year</div></div></div>
-    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-percentage"></i></div><div><div class="stat-value">87.4%</div><div class="stat-label">Bed Occupancy</div><div class="stat-change down"><i class="fas fa-arrow-down"></i> 3% vs last month</div></div></div>
+    <div class="stat-card blue">
+      <div class="stat-card-header">
+        <span class="stat-label">YTD Hospital Revenue</span>
+        <div class="stat-icon blue"><i class="fas fa-indian-rupee-sign"></i></div>
+      </div>
+      <div class="stat-value" id="rpt-revenue">₹5,77,000</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 22%</span>
+        <span class="stat-footnote">vs prior annual run</span>
+      </div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-card-header">
+        <span class="stat-label">Patients Treated YTD</span>
+        <div class="stat-icon teal"><i class="fas fa-user-injured"></i></div>
+      </div>
+      <div class="stat-value" id="rpt-patients">14,280</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 15%</span>
+        <span class="stat-footnote">inpatient &amp; outpatient</span>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-card-header">
+        <span class="stat-label">Completed Consultations</span>
+        <div class="stat-icon success"><i class="fas fa-calendar-check"></i></div>
+      </div>
+      <div class="stat-value" id="rpt-appts">8,940</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 11%</span>
+        <span class="stat-footnote">clinical encounters</span>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-card-header">
+        <span class="stat-label">Average Bed Occupancy</span>
+        <div class="stat-icon purple"><i class="fas fa-bed"></i></div>
+      </div>
+      <div class="stat-value">87.4%</div>
+      <div class="flex items-center">
+        <span class="stat-change down"><i class="fas fa-arrow-down"></i> 3%</span>
+        <span class="stat-footnote">optimal capacity range</span>
+      </div>
+    </div>
   </div>
 
   <div class="two-col mb-6">

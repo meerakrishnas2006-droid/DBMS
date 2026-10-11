@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MediCare HMS – Dashboard</title>
-  <meta name="description" content="Hospital Management System – Unified platform for patients, doctors, and operations." />
+  <title>NexusHealth — Clinical Operations Console</title>
+  <meta name="description" content="NexusHealth Hospital Management System — unified clinical operations, EHR, and department management." />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Chart.js defaults override ── */
+    canvas { display: block; }
+  </style>
 </head>
 <body>
 
@@ -22,10 +26,10 @@
 ════════════════════════════════════════════════════ -->
 <aside class="sidebar" role="navigation" aria-label="Main navigation">
   <div class="sidebar-logo">
-    <div class="sidebar-logo-icon"><i class="fas fa-heartbeat"></i></div>
+    <div class="sidebar-logo-icon"><i class="fas fa-heart-pulse"></i></div>
     <div class="sidebar-logo-text">
-      <span class="name">MediCare</span>
-      <span class="sub">Hospital Management</span>
+      <span class="name">NexusHealth</span>
+      <span class="sub">Clinical Console</span>
     </div>
   </div>
 
@@ -119,7 +123,7 @@
 
   <div class="sidebar-footer">
     <div class="sidebar-user">
-      <div class="avatar" style="background:#2563EB;width:36px;height:36px;font-size:.8rem">AD</div>
+      <div class="avatar" style="background:linear-gradient(135deg,#0F766E,#14B8A6);width:36px;height:36px;font-size:.8rem">AD</div>
       <div class="sidebar-user-info">
         <div class="name">Dr. Admin User</div>
         <div class="role">Super Administrator</div>
@@ -139,11 +143,22 @@
       <i class="fas fa-bars"></i>
     </button>
 
+    <div class="facility-badge">
+      <i class="fas fa-hospital"></i>
+      <span>Central Campus · Wing B</span>
+    </div>
+
     <div class="header-search">
       <div class="search-bar">
         <i class="fas fa-search"></i>
         <input type="search" id="header-search" placeholder="Search patients, doctors, appointments…" />
+        <span class="search-kbd">⌘K</span>
       </div>
+    </div>
+
+    <div class="header-clock-pill">
+      <span class="live-pulse"></span>
+      <span id="dashboard-clock">--:--:--</span>
     </div>
 
     <div class="header-actions">
@@ -154,39 +169,39 @@
           <span class="notif-dot"></span>
         </button>
         <div class="dropdown-menu" id="notif-dropdown" style="min-width:340px;max-height:460px;overflow-y:auto">
-          <div style="padding:1rem 1.1rem;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between">
-            <span class="fw-700">Notifications
+          <div style="padding:1rem 1.1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <span class="fw-700" style="color:var(--text-primary)">Notifications
               <span id="notif-count" class="badge badge-danger" style="margin-left:.5rem">3</span>
             </span>
-            <button id="mark-all-read" class="btn btn-outline btn-sm" style="font-size:.75rem">Mark all read</button>
+            <button id="mark-all-read" class="btn btn-outline btn-sm">Mark all read</button>
           </div>
           <div id="notif-panel" style="padding:0 1.1rem"></div>
-          <div style="padding:.75rem 1.1rem;border-top:1px solid var(--gray-100);text-align:center">
-            <a href="#" class="text-primary text-sm fw-500">View all notifications</a>
+          <div style="padding:.75rem 1.1rem;border-top:1px solid var(--border);text-align:center">
+            <a href="#" class="text-sm fw-500" style="color:var(--brand)">View all notifications</a>
           </div>
         </div>
       </div>
 
       <!-- Messages -->
-      <button class="header-icon-btn" aria-label="Messages" onclick="toast('Messages coming soon!','info')">
+      <button class="header-icon-btn" aria-label="Messages" onclick="toast('Department communications operational','info')">
         <i class="fas fa-envelope"></i>
       </button>
 
       <!-- User Menu -->
       <div class="dropdown">
         <div class="header-user" onclick="toggleDropdown('user-dropdown')">
-          <div class="avatar" style="background:#2563EB;width:36px;height:36px;font-size:.8rem">AD</div>
+          <div class="avatar" id="header-avatar" style="background:linear-gradient(135deg,#0F766E,#14B8A6);width:32px;height:32px;font-size:.76rem">AD</div>
           <div class="header-user-info">
-            <div class="name">Dr. Admin User</div>
-            <div class="role">Super Administrator</div>
+            <div class="name" id="header-user-name">Dr. Admin User</div>
+            <div class="role" id="header-user-role">Super Administrator</div>
           </div>
-          <i class="fas fa-chevron-down" style="font-size:.7rem;color:var(--gray-400);margin-left:.25rem"></i>
+          <i class="fas fa-chevron-down" style="font-size:.65rem;color:var(--text-subtle);margin-left:.2rem"></i>
         </div>
         <div class="dropdown-menu" id="user-dropdown">
           <div class="dropdown-item" onclick="navigate('settings')"><i class="fas fa-user-circle"></i> My Profile</div>
           <div class="dropdown-item" onclick="navigate('settings')"><i class="fas fa-cog"></i> Settings</div>
           <div class="dropdown-divider"></div>
-          <div class="dropdown-item" onclick="document.getElementById('logout-btn').click()" style="color:var(--danger)">
+          <div class="dropdown-item" onclick="document.getElementById('logout-btn').click()" style="color:var(--red)">
             <i class="fas fa-sign-out-alt"></i> Logout
           </div>
         </div>
@@ -414,35 +429,47 @@
   <!-- Stat Cards -->
   <div class="stats-grid mb-6">
     <div class="stat-card blue">
-      <div class="stat-icon blue"><i class="fas fa-user-injured"></i></div>
-      <div>
-        <div class="stat-value count-up" data-target="2847">0</div>
-        <div class="stat-label">Total Patients</div>
-        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 12% this month</div>
+      <div class="stat-card-header">
+        <span class="stat-label">Total Registered Patients</span>
+        <div class="stat-icon blue"><i class="fas fa-user-injured"></i></div>
+      </div>
+      <div class="stat-value count-up" data-target="2847">0</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 12%</span>
+        <span class="stat-footnote">vs last month</span>
       </div>
     </div>
     <div class="stat-card teal">
-      <div class="stat-icon teal"><i class="fas fa-user-md"></i></div>
-      <div>
-        <div class="stat-value count-up" data-target="48">0</div>
-        <div class="stat-label">Active Doctors</div>
-        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 3 new this month</div>
+      <div class="stat-card-header">
+        <span class="stat-label">Active Doctors &amp; Specialists</span>
+        <div class="stat-icon teal"><i class="fas fa-user-md"></i></div>
+      </div>
+      <div class="stat-value count-up" data-target="48">0</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 3 new</span>
+        <span class="stat-footnote">on active roster</span>
       </div>
     </div>
     <div class="stat-card success">
-      <div class="stat-icon success"><i class="fas fa-calendar-check"></i></div>
-      <div>
-        <div class="stat-value count-up" data-target="126">0</div>
-        <div class="stat-label">Today's Appointments</div>
-        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 8% vs yesterday</div>
+      <div class="stat-card-header">
+        <span class="stat-label">Today's Appointments</span>
+        <div class="stat-icon success"><i class="fas fa-calendar-check"></i></div>
+      </div>
+      <div class="stat-value count-up" data-target="126">0</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 8%</span>
+        <span class="stat-footnote">scheduled today</span>
       </div>
     </div>
     <div class="stat-card purple">
-      <div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div>
-      <div>
-        <div class="stat-value">$<span class="count-up" data-target="94250">0</span></div>
-        <div class="stat-label">Monthly Revenue</div>
-        <div class="stat-change up"><i class="fas fa-arrow-up"></i> 18% vs last month</div>
+      <div class="stat-card-header">
+        <span class="stat-label">Monthly Hospital Revenue</span>
+        <div class="stat-icon purple"><i class="fas fa-indian-rupee-sign"></i></div>
+      </div>
+      <div class="stat-value">₹<span class="count-up" data-target="94250">0</span></div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 18%</span>
+        <span class="stat-footnote">vs target run-rate</span>
       </div>
     </div>
   </div>
@@ -466,7 +493,7 @@
         <span class="card-title"><i class="fas fa-chart-pie text-teal" style="margin-right:.5rem"></i>Departments</span>
       </div>
       <div class="card-body">
-        <div class="chart-container" style="height:220px"><canvas id="dept-chart"></canvas></div>
+        <div class="chart-container"><canvas id="dept-chart"></canvas></div>
       </div>
     </div>
   </div>
@@ -541,8 +568,8 @@
       </div>
       <div class="card-body">
         <div class="mb-4">
-          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Cardiology</span><span class="text-sm fw-700" style="color:var(--primary)">85%</span></div>
-          <div class="progress"><div class="progress-bar" data-width="85" style="background:var(--primary);width:0"></div></div>
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Cardiology</span><span class="text-sm fw-700" style="color:var(--brand)">85%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="85" style="background:var(--brand);width:0"></div></div>
         </div>
         <div class="mb-4">
           <div class="flex justify-between mb-1"><span class="text-sm fw-500">Endocrinology</span><span class="text-sm fw-700" style="color:var(--teal)">72%</span></div>
@@ -553,16 +580,16 @@
           <div class="progress"><div class="progress-bar" data-width="68" style="background:var(--purple);width:0"></div></div>
         </div>
         <div class="mb-4">
-          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Nephrology</span><span class="text-sm fw-700" style="color:var(--warning)">59%</span></div>
-          <div class="progress"><div class="progress-bar" data-width="59" style="background:var(--warning);width:0"></div></div>
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Nephrology</span><span class="text-sm fw-700" style="color:var(--amber)">59%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="59" style="background:var(--amber);width:0"></div></div>
         </div>
         <div class="mb-4">
-          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Orthopedics</span><span class="text-sm fw-700" style="color:var(--success)">45%</span></div>
-          <div class="progress"><div class="progress-bar" data-width="45" style="background:var(--success);width:0"></div></div>
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Orthopedics</span><span class="text-sm fw-700" style="color:var(--green)">45%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="45" style="background:var(--green);width:0"></div></div>
         </div>
         <div>
-          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Pulmonology</span><span class="text-sm fw-700" style="color:var(--danger)">38%</span></div>
-          <div class="progress"><div class="progress-bar" data-width="38" style="background:var(--danger);width:0"></div></div>
+          <div class="flex justify-between mb-1"><span class="text-sm fw-500">Pulmonology</span><span class="text-sm fw-700" style="color:var(--red)">38%</span></div>
+          <div class="progress"><div class="progress-bar" data-width="38" style="background:var(--red);width:0"></div></div>
         </div>
       </div>
     </div>
@@ -580,7 +607,7 @@
     <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value" id="pat-total">—</div><div class="stat-label">Total Patients</div></div></div>
     <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-heartbeat"></i></div><div><div class="stat-value" id="pat-active">—</div><div class="stat-label">Active</div></div></div>
     <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="pat-recovered">—</div><div class="stat-label">Recovered</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-exclamation-triangle"></i></div><div><div class="stat-value" id="pat-critical">—</div><div class="stat-label">Critical</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--red)"><div class="stat-icon" style="background:#FEE2E2;color:var(--red)"><i class="fas fa-exclamation-triangle"></i></div><div><div class="stat-value" id="pat-critical">—</div><div class="stat-label">Critical</div></div></div>
   </div>
   <div class="card">
     <div class="card-header flex-wrap gap-3">
@@ -595,7 +622,7 @@
       <thead><tr><th>Patient ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Contact</th><th>Disease</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody id="patients-tbody"></tbody>
     </table></div>
-    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
       <span class="pagination-info">Loading…</span>
       <div class="pagination" id="patient-pg"></div>
     </div>
@@ -634,19 +661,19 @@
   <!-- Status Summary -->
   <div class="flex gap-3 mb-6 flex-wrap">
     <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
-      <div style="width:40px;height:40px;background:#D1FAE5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--success)"><i class="fas fa-check-circle"></i></div>
+      <div style="width:40px;height:40px;background:#D1FAE5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--green)"><i class="fas fa-check-circle"></i></div>
       <div><div class="fw-800 text-xl" id="appt-confirmed">—</div><div class="text-xs text-muted">Confirmed</div></div>
     </div>
     <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
-      <div style="width:40px;height:40px;background:#FEF3C7;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--warning)"><i class="fas fa-hourglass-half"></i></div>
+      <div style="width:40px;height:40px;background:#FEF3C7;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--amber)"><i class="fas fa-hourglass-half"></i></div>
       <div><div class="fw-800 text-xl" id="appt-pending">—</div><div class="text-xs text-muted">Pending</div></div>
     </div>
     <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
-      <div style="width:40px;height:40px;background:var(--gray-100);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gray-500)"><i class="fas fa-check-double"></i></div>
+      <div style="width:40px;height:40px;background:var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)"><i class="fas fa-check-double"></i></div>
       <div><div class="fw-800 text-xl" id="appt-completed">—</div><div class="text-xs text-muted">Completed</div></div>
     </div>
     <div class="card" style="padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex:1;min-width:130px">
-      <div style="width:40px;height:40px;background:#FEE2E2;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--danger)"><i class="fas fa-times-circle"></i></div>
+      <div style="width:40px;height:40px;background:#FEE2E2;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--red)"><i class="fas fa-times-circle"></i></div>
       <div><div class="fw-800 text-xl" id="appt-cancelled">—</div><div class="text-xs text-muted">Cancelled</div></div>
     </div>
   </div>
@@ -667,17 +694,17 @@
         <span class="badge badge-primary">8 remaining</span>
       </div>
       <div class="card-body" style="padding:.5rem 1rem">
-        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--gray-100)">
+        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--border)">
           <div style="text-align:center;min-width:42px"><div class="fw-700" style="font-size:.9rem;color:#2563EB">09:00</div><div class="text-xs text-muted">AM</div></div>
           <div style="flex:1"><div class="fw-600" style="font-size:.875rem">Emma Johnson</div><div class="text-xs text-muted">Dr. Sarah Chen</div></div>
           <span class="badge badge-primary" style="font-size:.68rem">Follow-up</span>
         </div>
-        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--gray-100)">
+        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--border)">
           <div style="text-align:center;min-width:42px"><div class="fw-700" style="font-size:.9rem;color:#0D9488">10:30</div><div class="text-xs text-muted">AM</div></div>
           <div style="flex:1"><div class="fw-600" style="font-size:.875rem">Michael Chen</div><div class="text-xs text-muted">Dr. James Wilson</div></div>
           <span class="badge badge-primary" style="font-size:.68rem">Consultation</span>
         </div>
-        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--gray-100)">
+        <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.75rem 0;border-bottom:1px solid var(--border)">
           <div style="text-align:center;min-width:42px"><div class="fw-700" style="font-size:.9rem;color:#8B5CF6">11:00</div><div class="text-xs text-muted">AM</div></div>
           <div style="flex:1"><div class="fw-600" style="font-size:.875rem">Sophia Williams</div><div class="text-xs text-muted">Dr. Priya Nair</div></div>
           <span class="badge badge-primary" style="font-size:.68rem">Check-up</span>
@@ -703,7 +730,7 @@
       <thead><tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Department</th><th>Date</th><th>Time</th><th>Status</th><th>Type</th><th>Actions</th></tr></thead>
       <tbody id="appt-tbody"></tbody>
     </table></div>
-    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
       <span class="pagination-info">Loading…</span>
       <div class="pagination" id="appt-pg"></div>
     </div>
@@ -715,13 +742,65 @@
 <div class="page" id="page-prescriptions">
   <div class="page-header flex items-center justify-between flex-wrap gap-4">
     <div>
-      <h1 class="page-title">Prescriptions & Treatment</h1>
-      <p class="page-subtitle">Patient treatment history, diagnoses, and prescriptions</p>
+      <h1 class="page-title">Prescriptions & Clinical Orders</h1>
+      <p class="page-subtitle">Patient treatment regimens, clinical diagnoses, and dispensing logs</p>
     </div>
-    <button class="btn btn-primary" onclick="openModal('modal-rx-form')">
-      <i class="fas fa-plus"></i> New Prescription
-    </button>
+    <div class="page-header-actions">
+      <button class="btn btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Print Log</button>
+      <button class="btn btn-primary" onclick="openModal('modal-rx-form')">
+        <i class="fas fa-plus"></i> New Prescription
+      </button>
+    </div>
   </div>
+
+  <div class="stats-grid mb-6">
+    <div class="stat-card blue">
+      <div class="stat-icon blue"><i class="fas fa-file-prescription"></i></div>
+      <div>
+        <div class="stat-value" id="rx-stat-total">—</div>
+        <div class="stat-label">Total Prescriptions</div>
+      </div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-icon teal"><i class="fas fa-stethoscope"></i></div>
+      <div>
+        <div class="stat-value" id="rx-stat-active">—</div>
+        <div class="stat-label">Active Therapies</div>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-icon success"><i class="fas fa-pills"></i></div>
+      <div>
+        <div class="stat-value" id="rx-stat-dispensed">—</div>
+        <div class="stat-label">Medicines Prescribed</div>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon purple"><i class="fas fa-user-md"></i></div>
+      <div>
+        <div class="stat-value" id="rx-stat-doctors">—</div>
+        <div class="stat-label">Prescribing Doctors</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-6" style="padding:0.9rem 1.25rem">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="search-bar" style="max-width:340px;flex:1">
+        <i class="fas fa-search"></i>
+        <input type="search" id="rx-search" placeholder="Search by patient, doctor, diagnosis, or Rx ID…" />
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <select class="form-control" id="rx-filter-type" style="width:auto;padding:.5rem 2rem .5rem .85rem;font-size:.83rem" onchange="filterPrescriptions(this.value)">
+          <option value="all">All Prescriptions</option>
+          <option value="recent">Recent (Last 30 Days)</option>
+          <option value="active">Active Treatments</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="fetchPrescriptions()"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+    </div>
+  </div>
+
   <div id="rx-list"></div>
 </div>
 </script>
@@ -735,8 +814,8 @@
   <div class="stats-grid mb-6">
     <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-pills"></i></div><div><div class="stat-value" id="ph-total">—</div><div class="stat-label">Total Medicines</div></div></div>
     <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="ph-instock">—</div><div class="stat-label">In Stock</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-exclamation"></i></div><div><div class="stat-value" id="ph-lowstock">—</div><div class="stat-label">Low Stock</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-times-circle"></i></div><div><div class="stat-value" id="ph-critical">—</div><div class="stat-label">Critical / Out</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--amber)"><div class="stat-icon" style="background:#FEF3C7;color:var(--amber)"><i class="fas fa-exclamation"></i></div><div><div class="stat-value" id="ph-lowstock">—</div><div class="stat-label">Low Stock</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--red)"><div class="stat-icon" style="background:#FEE2E2;color:var(--red)"><i class="fas fa-times-circle"></i></div><div><div class="stat-value" id="ph-critical">—</div><div class="stat-label">Critical / Out</div></div></div>
   </div>
   <div class="card">
     <div class="card-header flex-wrap gap-3">
@@ -751,7 +830,7 @@
       <thead><tr><th>ID</th><th>Medicine</th><th>Stock</th><th>Expiry</th><th>Supplier</th><th>Price/Unit</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody id="pharmacy-tbody"></tbody>
     </table></div>
-    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
       <span class="pagination-info">Loading…</span>
       <div class="pagination" id="pharmacy-pg"></div>
     </div>
@@ -762,22 +841,100 @@
 <script type="text/html" id="tpl-billing">
 <div class="page" id="page-billing">
   <div class="page-header flex items-center justify-between flex-wrap gap-4">
-    <div><h1 class="page-title">Billing &amp; Invoices</h1><p class="page-subtitle">Manage patient invoices, payments, and financial records</p></div>
-    <div class="flex gap-2">
-      <div class="search-bar" style="max-width:240px"><i class="fas fa-search"></i><input type="search" id="billing-search" placeholder="Search invoices…" /></div>
-      <select class="form-control" id="billing-status-filter" style="width:auto;padding:.6rem 2.2rem .6rem .9rem"><option value="">All Status</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="partial">Partial</option></select>
-      <button id="bill-add-btn" class="btn btn-primary"><i class="fas fa-file-invoice"></i> New Invoice</button>
+    <div>
+      <h1 class="page-title">Billing, Invoices &amp; Revenue</h1>
+      <p class="page-subtitle">Patient financial records, itemized medical claims, settlements &amp; payment gateway</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline" onclick="exportBillingStatement()"><i class="fas fa-file-export"></i> Export Statement</button>
+      <button id="bill-add-btn" class="btn btn-primary"><i class="fas fa-file-invoice-dollar"></i> Generate Invoice</button>
     </div>
   </div>
+
   <div class="stats-grid mb-6">
-    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-rupee-sign"></i></div><div><div class="stat-value" id="bill-total">—</div><div class="stat-label">Revenue (Month)</div></div></div>
-    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="bill-paid">—</div><div class="stat-label">Paid</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-clock"></i></div><div><div class="stat-value" id="bill-pending">—</div><div class="stat-label">Pending</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-times"></i></div><div><div class="stat-value" id="bill-overdue">—</div><div class="stat-label">Overdue</div></div></div>
+    <div class="stat-card blue">
+      <div class="stat-icon blue"><i class="fas fa-wallet"></i></div>
+      <div>
+        <div class="stat-value" id="bill-total">—</div>
+        <div class="stat-label">Total Billed Revenue</div>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-icon success"><i class="fas fa-check-double"></i></div>
+      <div>
+        <div class="stat-value" id="bill-paid">—</div>
+        <div class="stat-label">Settled Collections</div>
+      </div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid var(--amber)">
+      <div class="stat-icon" style="background:#FEF3C7;color:var(--amber)"><i class="fas fa-hourglass-half"></i></div>
+      <div>
+        <div class="stat-value" id="bill-pending">—</div>
+        <div class="stat-label">Pending Receivables</div>
+      </div>
+    </div>
+    <div class="stat-card" style="border-left:4px solid var(--red)">
+      <div class="stat-icon" style="background:#FEE2E2;color:var(--red)"><i class="fas fa-exclamation-circle"></i></div>
+      <div>
+        <div class="stat-value" id="bill-overdue">—</div>
+        <div class="stat-label">Overdue / Claims</div>
+      </div>
+    </div>
   </div>
+
+  <div class="billing-toolbar">
+    <div class="search-bar" style="max-width:320px;flex:1">
+      <i class="fas fa-search"></i>
+      <input type="search" id="billing-search" placeholder="Search by Invoice #, patient, doctor, payment mode…" />
+    </div>
+
+    <div class="billing-filter-group" id="billing-status-pills">
+      <button type="button" class="billing-filter-pill active" data-status="" onclick="setBillingFilter('')">
+        All Invoices <span class="pill-count" id="pill-cnt-all">0</span>
+      </button>
+      <button type="button" class="billing-filter-pill" data-status="paid" onclick="setBillingFilter('paid')">
+        <i class="fas fa-check-circle text-green" style="font-size:0.75rem"></i> Paid <span class="pill-count" id="pill-cnt-paid">0</span>
+      </button>
+      <button type="button" class="billing-filter-pill" data-status="pending" onclick="setBillingFilter('pending')">
+        <i class="fas fa-clock text-amber" style="font-size:0.75rem"></i> Pending <span class="pill-count" id="pill-cnt-pending">0</span>
+      </button>
+      <button type="button" class="billing-filter-pill" data-status="partial" onclick="setBillingFilter('partial')">
+        <i class="fas fa-shield-alt text-teal" style="font-size:0.75rem"></i> Partial/Claim <span class="pill-count" id="pill-cnt-partial">0</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <div class="chart-tabs">
+        <button type="button" class="chart-tab active" id="btn-view-cards" onclick="setBillingView('cards')"><i class="fas fa-th-large"></i> Cards</button>
+        <button type="button" class="chart-tab" id="btn-view-table" onclick="setBillingView('table')"><i class="fas fa-table"></i> Ledger</button>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="fetchBills()" title="Refresh records"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </div>
+
   <div id="billing-list"></div>
+  <div id="billing-table-wrap" class="card" style="display:none;overflow:hidden">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Patient</th>
+            <th>Attending Doctor</th>
+            <th>Issue Date</th>
+            <th>Payment Mode</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="billing-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
   <div style="padding:1rem 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
-    <span class="pagination-info"></span>
+    <span class="pagination-info" id="billing-pg-info"></span>
     <div class="pagination" id="billing-pg"></div>
   </div>
 </div>
@@ -792,8 +949,8 @@
   <div class="stats-grid mb-6">
     <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value" id="staff-total">—</div><div class="stat-label">Total Staff</div></div></div>
     <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-user-check"></i></div><div><div class="stat-value" id="staff-present">—</div><div class="stat-label">Present Today</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-user-times"></i></div><div><div class="stat-value" id="staff-absent">—</div><div class="stat-label">Absent</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-umbrella-beach"></i></div><div><div class="stat-value" id="staff-leave">—</div><div class="stat-label">On Leave</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--red)"><div class="stat-icon" style="background:#FEE2E2;color:var(--red)"><i class="fas fa-user-times"></i></div><div><div class="stat-value" id="staff-absent">—</div><div class="stat-label">Absent</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--amber)"><div class="stat-icon" style="background:#FEF3C7;color:var(--amber)"><i class="fas fa-umbrella-beach"></i></div><div><div class="stat-value" id="staff-leave">—</div><div class="stat-label">On Leave</div></div></div>
   </div>
   <div class="card">
     <div class="card-header flex-wrap gap-3">
@@ -807,7 +964,7 @@
       <thead><tr><th>Staff ID</th><th>Name</th><th>Department</th><th>Position</th><th>Contact</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody id="staff-tbody"></tbody>
     </table></div>
-    <div style="padding:1rem 1.5rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
       <span class="pagination-info">Loading…</span>
       <div class="pagination" id="staff-pg"></div>
     </div>
@@ -829,10 +986,50 @@
   </div>
 
   <div class="stats-grid mb-6">
-    <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value">$577K</div><div class="stat-label">YTD Revenue</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 22% vs last year</div></div></div>
-    <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-user-injured"></i></div><div><div class="stat-value">14,280</div><div class="stat-label">Patients YTD</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 15% vs last year</div></div></div>
-    <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-calendar-check"></i></div><div><div class="stat-value">8,940</div><div class="stat-label">Appointments YTD</div><div class="stat-change up"><i class="fas fa-arrow-up"></i> 11% vs last year</div></div></div>
-    <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-percentage"></i></div><div><div class="stat-value">87.4%</div><div class="stat-label">Bed Occupancy</div><div class="stat-change down"><i class="fas fa-arrow-down"></i> 3% vs last month</div></div></div>
+    <div class="stat-card blue">
+      <div class="stat-card-header">
+        <span class="stat-label">YTD Hospital Revenue</span>
+        <div class="stat-icon blue"><i class="fas fa-indian-rupee-sign"></i></div>
+      </div>
+      <div class="stat-value" id="rpt-revenue">₹5,77,000</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 22%</span>
+        <span class="stat-footnote">vs prior annual run</span>
+      </div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-card-header">
+        <span class="stat-label">Patients Treated YTD</span>
+        <div class="stat-icon teal"><i class="fas fa-user-injured"></i></div>
+      </div>
+      <div class="stat-value" id="rpt-patients">14,280</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 15%</span>
+        <span class="stat-footnote">inpatient &amp; outpatient</span>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-card-header">
+        <span class="stat-label">Completed Consultations</span>
+        <div class="stat-icon success"><i class="fas fa-calendar-check"></i></div>
+      </div>
+      <div class="stat-value" id="rpt-appts">8,940</div>
+      <div class="flex items-center">
+        <span class="stat-change up"><i class="fas fa-arrow-up"></i> 11%</span>
+        <span class="stat-footnote">clinical encounters</span>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-card-header">
+        <span class="stat-label">Average Bed Occupancy</span>
+        <div class="stat-icon purple"><i class="fas fa-bed"></i></div>
+      </div>
+      <div class="stat-value">87.4%</div>
+      <div class="flex items-center">
+        <span class="stat-change down"><i class="fas fa-arrow-down"></i> 3%</span>
+        <span class="stat-footnote">optimal capacity range</span>
+      </div>
+    </div>
   </div>
 
   <div class="two-col mb-6">
@@ -862,10 +1059,10 @@
     </div>
     <div class="card-body">
       <div class="grid grid-4 gap-4">
-        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/revenue').then(()=>toast('Revenue report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-chart-bar" style="font-size:1.5rem;color:var(--primary)"></i><span class="fw-600">Revenue</span></button>
+        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/revenue').then(()=>toast('Revenue report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-chart-bar" style="font-size:1.5rem;color:var(--brand)"></i><span class="fw-600">Revenue</span></button>
         <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/patients').then(()=>toast('Patient report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-user-injured" style="font-size:1.5rem;color:var(--teal)"></i><span class="fw-600">Patients</span></button>
-        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/appointments').then(()=>toast('Appointment report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-calendar-check" style="font-size:1.5rem;color:var(--success)"></i><span class="fw-600">Appointments</span></button>
-        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/pharmacy').then(()=>toast('Pharmacy report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-pills" style="font-size:1.5rem;color:var(--warning)"></i><span class="fw-600">Pharmacy</span></button>
+        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/appointments').then(()=>toast('Appointment report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-calendar-check" style="font-size:1.5rem;color:var(--green)"></i><span class="fw-600">Appointments</span></button>
+        <button class="btn btn-outline" style="padding:1rem;flex-direction:column;gap:.5rem;height:auto" onclick="apiRequest('/reports/pharmacy').then(()=>toast('Pharmacy report fetched!','success')).catch(e=>toast(e.message,'error'))"><i class="fas fa-pills" style="font-size:1.5rem;color:var(--amber)"></i><span class="fw-600">Pharmacy</span></button>
       </div>
     </div>
   </div>
@@ -1008,23 +1205,81 @@
 <div class="modal-overlay" id="modal-bill-form">
   <div class="modal modal-lg">
     <div class="modal-header">
-      <span class="modal-title">Create Invoice</span>
+      <span class="modal-title"><i class="fas fa-file-invoice text-primary" style="margin-right:.5rem"></i>Generate Patient Invoice</span>
       <div class="modal-close" onclick="closeModal('modal-bill-form')"><i class="fas fa-times"></i></div>
     </div>
     <div class="modal-body">
       <div class="two-col">
-        <div class="form-group"><label>Patient ID *</label><input class="form-control" id="bf-patient" placeholder="Patient ID" /></div>
-        <div class="form-group"><label>Total Amount (₹) *</label><input type="number" class="form-control" id="bf-amount" min="0" step="0.01" placeholder="0.00" /></div>
+        <div class="form-group">
+          <label>Patient *</label>
+          <select class="form-control" id="bf-patient-select">
+            <option value="">Select Patient…</option>
+          </select>
+          <input type="hidden" id="bf-patient" />
+        </div>
+        <div class="form-group">
+          <label>Attending Doctor / Department</label>
+          <select class="form-control" id="bf-doctor-select">
+            <option value="">Select Doctor…</option>
+          </select>
+        </div>
       </div>
       <div class="two-col">
-        <div class="form-group"><label>Payment Mode</label><select class="form-control" id="bf-paymode"><option value="cash">Cash</option><option value="card">Card</option><option value="upi">UPI</option><option value="insurance">Insurance</option></select></div>
-        <div class="form-group"><label>Branch ID</label><input class="form-control" id="bf-branch" placeholder="1" value="1" /></div>
+        <div class="form-group">
+          <label>Service / Treatment Description *</label>
+          <input class="form-control" id="bf-service-desc" placeholder="e.g. Clinical Consultation &amp; Pathology Tests" value="Clinical Consultation &amp; Care" />
+        </div>
+        <div class="form-group">
+          <label>Total Billed Amount (₹) *</label>
+          <input type="number" class="form-control" id="bf-amount" min="0" step="0.01" placeholder="0.00" />
+        </div>
       </div>
-      <div class="form-group"><label>Notes</label><textarea class="form-control" id="bf-notes" rows="2" placeholder="Optional notes…"></textarea></div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>Payment Mode *</label>
+          <select class="form-control" id="bf-paymode">
+            <option value="cash">Cash (Counter Desk)</option>
+            <option value="card">Credit / Debit Card</option>
+            <option value="upi">UPI / NetBanking</option>
+            <option value="insurance">Health Insurance Claim</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Initial Payment Status</label>
+          <select class="form-control" id="bf-initial-status">
+            <option value="paid">Paid (Instant Settlement)</option>
+            <option value="pending" selected>Pending Payment</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Invoice Billing Notes / Items</label>
+        <textarea class="form-control" id="bf-notes" rows="2" placeholder="Itemized breakdown, tax exemption, or patient insurer policy #…"></textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-bill-form')">Cancel</button>
-      <button class="btn btn-primary" id="bill-form-submit"><i class="fas fa-save"></i> Create Invoice</button>
+      <button class="btn btn-primary" id="bill-form-submit"><i class="fas fa-file-invoice-dollar"></i> Generate &amp; Save Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- Official Tax Receipt Modal -->
+<div class="modal-overlay" id="modal-receipt-view">
+  <div class="modal modal-lg" style="max-width:760px">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-receipt text-primary" style="margin-right:0.5rem"></i>Hospital Tax Invoice &amp; Payment Receipt</span>
+      <div class="modal-close" onclick="closeModal('modal-receipt-view')"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="modal-body" style="padding:1.5rem;background:var(--bg)">
+      <div id="receipt-modal-content"></div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-outline" onclick="closeModal('modal-receipt-view')">Close</button>
+      <div class="flex gap-2">
+        <button class="btn btn-outline" onclick="printReceiptContent()"><i class="fas fa-print"></i> Print Official Invoice</button>
+        <button class="btn btn-primary" onclick="toast('Invoice PDF downloaded successfully!','success')"><i class="fas fa-download"></i> Download PDF</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1374,8 +1629,8 @@
   <div class="stats-grid mb-6">
     <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-door-open"></i></div><div><div class="stat-value" id="room-total">—</div><div class="stat-label">Total Rooms</div></div></div>
     <div class="stat-card success"><div class="stat-icon success"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="room-avail">—</div><div class="stat-label">Available</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--warning)"><div class="stat-icon" style="background:#FEF3C7;color:var(--warning)"><i class="fas fa-bed"></i></div><div><div class="stat-value" id="room-occ">—</div><div class="stat-label">Occupied</div></div></div>
-    <div class="stat-card" style="border-left:4px solid var(--danger)"><div class="stat-icon" style="background:#FEE2E2;color:var(--danger)"><i class="fas fa-wrench"></i></div><div><div class="stat-value" id="room-maint">—</div><div class="stat-label">Maintenance</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--amber)"><div class="stat-icon" style="background:#FEF3C7;color:var(--amber)"><i class="fas fa-bed"></i></div><div><div class="stat-value" id="room-occ">—</div><div class="stat-label">Occupied</div></div></div>
+    <div class="stat-card" style="border-left:4px solid var(--red)"><div class="stat-icon" style="background:#FEE2E2;color:var(--red)"><i class="fas fa-wrench"></i></div><div><div class="stat-value" id="room-maint">—</div><div class="stat-label">Maintenance</div></div></div>
   </div>
   <div class="card">
     <div class="table-wrap"><table class="table">
